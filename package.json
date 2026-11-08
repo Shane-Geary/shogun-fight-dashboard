@@ -1,0 +1,25 @@
+{
+	"name": "shogun-fight-dashboard",
+	"version": "1.0.0",
+	"description": "Shogun Fight Collective weekly audit dashboard",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "netlify dev"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Shane-Geary/shogun-fight-dashboard.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs",
+	"bugs": {
+		"url": "https://github.com/Shane-Geary/shogun-fight-dashboard/issues"
+	},
+	"homepage": "https://github.com/Shane-Geary/shogun-fight-dashboard#readme",
+	"devDependencies": {
+		"netlify-cli": "^27.16.2"
+	}
+}
