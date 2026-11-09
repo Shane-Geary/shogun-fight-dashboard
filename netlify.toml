@@ -5,3 +5,8 @@
 [dev]
   publish = "src"
   port = 8000
+
+[[redirects]]
+  from = "/"
+  to = "/Pages/index.html"
+  status = 200
