@@ -34,8 +34,8 @@ async function signIn(googleResponse) {
 
 		console.log('Account verified and authorized')
 
-		statusElement.textContent = `Welcome, ${data.user.name || 'staff member'}! Your account is authorized.`
 		statusElement.style.color = 'green'
+		statusElement.textContent = `Welcome, ${data.user.name || 'staff member'}! Your account is authorized.`
 	} catch (error) {
 		console.error('Sign-in failed:', error)
 		statusElement.textContent =
