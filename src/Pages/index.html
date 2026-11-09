@@ -10,7 +10,7 @@
 		<title>Staff Sign-In | Shogun Fight Collective</title>
 		<link rel="stylesheet" href="../Styles/auth.css" />
 		<script src="../JS/auth.js" defer></script>
-		<script src="https://accounts.google.com/gsi/client" async></script>
+		<script src="https://accounts.google.com/gsi/client" defer></script>
 	</head>
 
 	<body>
@@ -66,15 +66,10 @@
 					audit.
 				</p>
 
-				<!--
-        Layout placeholder: replace with Google's rendered GIS button
-        when connecting authentication. Verify and authorize the user
-        on the backend before exposing member data.
-      -->
 				<div
 					id="g_id_onload"
-					data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com"
-					data-callback="handleGoogleSignIn"
+					data-client_id="656125419709-74sh3s3f7la2ceq3rum7kmj418l6v186.apps.googleusercontent.com"
+					data-callback="signIn"
 					data-ux_mode="popup"
 					data-auto_prompt="false"
 				></div>
