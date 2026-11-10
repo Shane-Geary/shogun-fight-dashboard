@@ -2,8 +2,8 @@ node_modules
 env
 env.*
 .env.example
-netlify
 DS_Store
+vscrof
 
 # Local Netlify folder
-.netlify
+.netlify/
