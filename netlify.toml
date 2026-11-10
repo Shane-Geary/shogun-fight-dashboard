@@ -3,5 +3,5 @@
   functions = "netlify/functions"
 
 [dev]
-  publish = "src"
+  publish = "poc/T6-student-cards"
   port = 8000
