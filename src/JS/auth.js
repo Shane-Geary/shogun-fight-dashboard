@@ -43,3 +43,24 @@ async function signIn(googleResponse) {
 			error.message || 'Sign-in failed. Please try again.'
 	}
 }
+
+async function checkSession() {
+	const statusElement = document.getElementById('auth-status')
+	try {
+		const response = await fetch('/.netlify/functions/oauth', {
+			cache: 'no-store'
+		})
+
+		if (response.status === 401) return
+		if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+		const {user} = await response.json()
+
+		statusElement.style.color = 'green'
+		statusElement.textContent = `Welcome back, ${user.name || 'staff member'}!`
+	} catch (error) {
+		console.error('Session check failed:', error)
+	}
+}
+
+checkSession()

@@ -1,5 +1,5 @@
 import {OAuth2Client} from 'google-auth-library'
-import {createSession, isSameOrigin} from '../lib/session.mjs'
+import {createSession, getSession} from '../lib/session.mjs'
 
 const googleClient = new OAuth2Client()
 
@@ -15,8 +15,25 @@ function jsonResponse(status, body, extraHeaders = {}) {
 }
 
 export default async function handler(request, context) {
+	if (request.method === 'GET') {
+		const user = await getSession(context)
+		return jsonResponse(user ? 200 : 401, {user})
+	}
+
+	// Post handles Google sign-in
 	if (request.method !== 'POST') {
-		return jsonResponse(405, {error: 'Method not allowed.'}, {Allow: 'POST'})
+		return jsonResponse(
+			405,
+			{error: 'Method not allowed.'},
+			{Allow: 'GET, POST'}
+		)
+	}
+
+	if (
+		!process.env.APP_ORIGIN ||
+		request.headers.get('origin') !== process.env.APP_ORIGIN
+	) {
+		return jsonResponse(403, {error: 'Invalid request origin'})
 	}
 
 	const contentType = request.headers.get('content-type') || ''
@@ -86,6 +103,12 @@ export default async function handler(request, context) {
 		return jsonResponse(403, {
 			error: 'This Google account is not authorized to access the dashboard.'
 		})
+	}
+
+	try {
+		await createSession(payload, context)
+	} catch {
+		return jsonResponse(500, {error: 'Unable to create your session.'})
 	}
 
 	// Step 3: Return success only after verification AND authorization.
