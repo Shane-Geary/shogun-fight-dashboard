@@ -168,39 +168,10 @@ h2 {
 	width: 100%;
 }
 
-.google-signin-button {
+.g_id_signin {
 	display: flex;
-	align-items: center;
 	justify-content: center;
-	gap: 13px;
 	width: 100%;
-	min-height: 51px;
-	padding: 12px 16px;
-	border: 1px solid var(--border);
-	border-radius: 8px;
-	background: var(--panel-background);
-	color: var(--text);
-	font: inherit;
-	font-size: 13px;
-	font-weight: 700;
-	cursor: pointer;
-	transition:
-		background-color 150ms ease,
-		border-color 150ms ease;
-}
-
-.google-signin-button:hover {
-	border-color: #9aa6b3;
-	background: #f6f8fa;
-}
-
-.google-signin-button:focus-visible {
-	outline: 3px solid #0077b8;
-	outline-offset: 3px;
-}
-
-.google-signin-button:active {
-	background: #edf1f5;
 }
 
 .google-icon {

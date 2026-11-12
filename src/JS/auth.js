@@ -23,6 +23,7 @@ async function signIn(googleResponse) {
 		})
 
 		const data = await httpResponse.json()
+		console.log('data: ' + data.authorized)
 
 		if (!httpResponse.ok) {
 			throw new Error(data.error || `HTTP ${httpResponse.status}`)
