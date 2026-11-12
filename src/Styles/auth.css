@@ -213,6 +213,12 @@ h2 {
 	list-style: none;
 }
 
+.source-list svg {
+	width: 13px;
+	height: 13px;
+	color: #536072;
+}
+
 .source-badge {
 	display: inline-flex;
 	align-items: center;
