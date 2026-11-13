@@ -3,10 +3,35 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Shogun Fight Collective | Dashboard</title>
-		<link rel="stylesheet" href="index.css" />
+		<title>Weekly Dashboard | Shogun Fight Collective</title>
+		<link rel="stylesheet" href="styles.css" />
 		<script src="script.js" type="module" defer></script>
 	</head>
-	<div>Jace's POC for T-06</div>
-	<div class="students"></div>
+	<body>
+		<header class="site-header">
+			<a class="brand" href="#" aria-label="Shogun Fight Collective home">
+				<img class="brand__logo" src="shogun-logic-logo-cropped.png" alt="Shogun Fight Co. and Logic logo" />
+				<span class="brand__divider" aria-hidden="true"></span>
+				<span class="brand__name">
+					<strong>SHOGUN</strong>
+					<small>FIGHT COLLECTIVE</small>
+				</span>
+			</a>
+			<div class="header-actions">
+				<span class="header-label">Weekly Dashboard</span>
+			</div>
+		</header>
+
+		<main class="dashboard">
+			<section class="page-heading" aria-labelledby="page-title">
+				<p class="eyebrow">Weekly staff audit</p>
+				<h1 id="page-title">Student &amp; prospect results</h1>
+				<p class="page-description">Select a student card to expand contact and membership details.</p>
+			</section>
+
+			<section class="student-section" aria-label="Students">
+				<div id="students" class="student-grid" aria-live="polite"></div>
+			</section>
+		</main>
+	</body>
 </html>
