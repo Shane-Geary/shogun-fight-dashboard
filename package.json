@@ -21,5 +21,9 @@
 	"homepage": "https://github.com/Shane-Geary/shogun-fight-dashboard#readme",
 	"devDependencies": {
 		"netlify-cli": "^27.16.2"
+	},
+	"dependencies": {
+		"google-auth-library": "^11.3.3",
+		"jose": "^6.2.16"
 	}
 }
