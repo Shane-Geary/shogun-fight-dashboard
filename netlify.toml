@@ -3,5 +3,5 @@
   functions = "netlify/functions"
 
 [dev]
-  publish = "src"
+  publish = "poc/T3-csv-upload"
   port = 8000
