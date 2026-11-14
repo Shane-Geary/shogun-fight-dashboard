@@ -3,5 +3,10 @@
   functions = "netlify/functions"
 
 [dev]
-  publish = "poc/T3-csv-upload"
+  publish = "src"
   port = 8000
+
+[[redirects]]
+  from = "/"
+  to = "/Pages/index.html"
+  status = 200
