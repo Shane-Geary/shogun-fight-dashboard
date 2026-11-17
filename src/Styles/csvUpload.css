@@ -419,7 +419,7 @@ body {
 	transition: 0.2s ease;
 }
 
-#startAuditButton > .mobile-only {
+#startAuditButton {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;

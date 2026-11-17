@@ -16,6 +16,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024
 
 let currentFile = null
 
+let currentValidation = null
+
 // Identifies the latest selection so older async results can be ignored.
 let fileSelectionNumber = 0
 
@@ -32,11 +34,15 @@ function setUploadStatus(message, isError = false) {
 
 // Check the selected file, then automatically validate its CSV contents.
 async function validateFile(file) {
+	// Ignore file changes while the processing view is open.
+	if (csvFile.disabled) return
+
 	fileSelectionNumber++
 	const selectionNumber = fileSelectionNumber
 
 	// Clear the previous selection and disable auditing until checks finish.
 	currentFile = null
+	currentValidation = null
 	startAuditButton.disabled = true
 	selectedFile.hidden = true
 	fileStatus.hidden = true
@@ -109,6 +115,9 @@ async function validateCSV() {
 
 		const hasBlockingIssues = result.blockingErrors.length > 0
 
+		// Keep the parsed records available for the processing workflow.
+		currentValidation = hasBlockingIssues ? null : result
+
 		// Show one issue at a time, prioritizing errors that block the audit.
 		const issue = result.blockingErrors[0] || result.errors[0]
 
@@ -169,4 +178,11 @@ dropZone.addEventListener('drop', (event) => {
 	event.preventDefault()
 	dropZone.classList.remove('dragover')
 	validateFile(event.dataTransfer.files[0])
+})
+
+// Start T-11 only after automatic CSV validation has succeeded.
+startAuditButton.addEventListener('click', () => {
+	if (currentFile && currentValidation) {
+		auditProcessing.start(currentFile, currentValidation)
+	}
 })
