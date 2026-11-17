@@ -9,9 +9,11 @@
 			rel="stylesheet"
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap"
 		/>
+		<link rel="stylesheet" href="../Styles/auditProcessing.css" />
 
 		<script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
 		<script src="../JS/csvParser.js" defer></script>
+		<script src="../JS/auditProcessing.js" defer></script>
 		<script src="../JS/csvUpload.js" defer></script>
 		<script src="../JS/signOut.js" defer></script>
 	</head>
@@ -61,7 +63,7 @@
 					<time class="mobile-audit-date" data-audit-date></time>
 				</div>
 
-				<h1>Ready for this week?</h1>
+				<h1 tabindex="-1">Ready for this week?</h1>
 
 				<p>
 					Upload your latest export. We'll bring your member records and forms
@@ -163,7 +165,9 @@
 							</div>
 						</div>
 
-						<span class="file-ready" id="fileStatus">Validation Pending</span>
+						<span class="file-ready" id="fileStatus" hidden>
+							Ready to audit
+						</span>
 					</div>
 				</div>
 
@@ -174,21 +178,168 @@
 
 					<div class="audit-buttons">
 						<button type="button" id="startAuditButton" disabled>
-							<span class="mobile-only">
-								<svg
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									aria-hidden="true"
-								>
-									<path d="m7 17 10-10M7 7h10v10" />
-								</svg>
-								<span class="desktop-only">Start Audit</span>
-							</span>
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<path d="m7 17 10-10M7 7h10v10" />
+							</svg>
+
+							<span class="desktop-only">Start Audit</span>
+							<span class="mobile-only">Upload Report</span>
 						</button>
+					</div>
+				</div>
+			</section>
+
+			<section
+				id="processingPanel"
+				class="processing-panel"
+				aria-label="Audit processing"
+				hidden
+			>
+				<div class="processing-file">
+					<span class="processing-file-icon" aria-hidden="true">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path
+								d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z
+					   M14 2v6h6M8 12h1m4 0h3M8 16h1m4 0h3"
+							/>
+						</svg>
+					</span>
+
+					<div>
+						<strong id="processingFileName"></strong>
+						<p id="processingFileSize"></p>
+					</div>
+				</div>
+
+				<div class="processing-summary">
+					<strong>
+						<span class="processing-spinner" aria-hidden="true"></span>
+						<span id="processingMessage">Please Wait...</span>
+					</strong>
+
+					<span id="processingPercent">0%</span>
+				</div>
+
+				<div
+					id="processingBar"
+					class="processing-bar"
+					role="progressbar"
+					aria-label="Audit progress"
+					aria-valuemin="0"
+					aria-valuemax="100"
+					aria-valuenow="0"
+				>
+					<div id="processingFill"></div>
+				</div>
+
+				<p
+					id="processingDetail"
+					role="status"
+					aria-live="polite"
+					aria-atomic="true"
+				></p>
+
+				<ol
+					id="processingSteps"
+					class="processing-steps"
+					aria-label="Processing stages"
+				>
+					<li>
+						<span class="processing-marker" aria-hidden="true">01</span>
+						<strong>Upload report</strong>
+						<p>Securely transfer your CSV export</p>
+						<small>Waiting</small>
+						<span class="processing-spinner" aria-hidden="true"></span>
+					</li>
+
+					<li>
+						<span class="processing-marker" aria-hidden="true">02</span>
+						<strong>Validate file</strong>
+						<p>Check columns and member records</p>
+						<small>Waiting</small>
+						<span class="processing-spinner" aria-hidden="true"></span>
+					</li>
+
+					<li>
+						<span class="processing-marker" aria-hidden="true">03</span>
+						<strong>Retrieve &amp; merge</strong>
+						<p>Combine Martialytics and Jotform</p>
+						<small>Waiting</small>
+						<span class="processing-spinner" aria-hidden="true"></span>
+					</li>
+
+					<li>
+						<span class="processing-marker" aria-hidden="true">04</span>
+						<strong>Prepare results</strong>
+						<p>Build your weekly member audit</p>
+						<small>Waiting</small>
+						<span class="processing-spinner" aria-hidden="true"></span>
+					</li>
+				</ol>
+
+				<div id="processingNote" class="processing-note">
+					<svg
+						class="processing-info-icon"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+						aria-hidden="true"
+					>
+						<circle cx="12" cy="12" r="9" />
+						<path d="M12 11v6m0-10v1" />
+					</svg>
+
+					<svg
+						class="processing-merge-icon"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+						stroke-linecap="round"
+						aria-hidden="true"
+					>
+						<circle cx="6" cy="4" r="2" />
+						<circle cx="18" cy="18" r="2" />
+						<path d="M6 6v14m0-12c0 6 10 2 10 10" />
+					</svg>
+
+					<p id="processingNoteDesktop" class="desktop-only"></p>
+					<p id="processingNoteMobile" class="mobile-only"></p>
+				</div>
+
+				<p
+					id="processingError"
+					class="processing-error"
+					role="alert"
+					tabindex="-1"
+					hidden
+				></p>
+
+				<div class="processing-footer">
+					<p id="processingHint">
+						Keep this window open while we prepare your weekly audit.
+					</p>
+
+					<div class="processing-actions">
+						<button id="retryProcessing" type="button" hidden>Try again</button>
+
+						<button id="cancelProcessing" type="button">Cancel</button>
 					</div>
 				</div>
 			</section>
