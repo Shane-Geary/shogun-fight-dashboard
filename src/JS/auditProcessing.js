@@ -75,7 +75,24 @@ const auditProcessing = (() => {
 	const simulatedTasks = [
 		async (data) => data, // Upload: the selected File is already in memory.
 		async (data) => data, // Validation: reuse T-03's completed validation.
-		async (data) => data, // T-04/T-05: retrieve Jotform and match records.
+		async (data, signal) => {
+			const response = await fetch('/.netlify/functions/jotform', {
+				method: 'GET',
+				signal
+			})
+
+			const result = await response.json()
+
+			if (!response.ok) {
+				throw new Error(
+					result.error || 'Unable to retrieve Jotform submissions.'
+				)
+			}
+
+			console.log('Submissions retrieved:', result.submissions)
+
+			return {...data, jotformSubmissions: result.submissions}
+		}, // T-04/T-05: retrieve Jotform and match records.
 		async (data) => data // T-06: prepare the dashboard's result data.
 	]
 
