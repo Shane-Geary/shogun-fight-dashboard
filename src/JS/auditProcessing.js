@@ -75,24 +75,28 @@ const auditProcessing = (() => {
 	const simulatedTasks = [
 		async (data) => data, // Upload: the selected File is already in memory.
 		async (data) => data, // Validation: reuse T-03's completed validation.
-		async (data, signal) => {
-			const response = await fetch('/.netlify/functions/jotform', {
-				method: 'GET',
-				signal
-			})
+		async (data) => data,
+		//! Comment this back in only when ready for data normalization work,
+		//! development that requires fetched data,
+		//! or prod testing
+		// async (data, signal) => {
+		// 	const response = await fetch('/.netlify/functions/jotform', {
+		// 		method: 'GET',
+		// 		signal
+		// 	})
 
-			const result = await response.json()
+		// 	const result = await response.json()
 
-			if (!response.ok) {
-				throw new Error(
-					result.error || 'Unable to retrieve Jotform submissions.'
-				)
-			}
+		// 	if (!response.ok) {
+		// 		throw new Error(
+		// 			result.error || 'Unable to retrieve Jotform submissions.'
+		// 		)
+		// 	}
 
-			console.log('Submissions retrieved:', result.submissions)
+		// 	console.log('Submissions retrieved:', result.submissions)
 
-			return {...data, jotformSubmissions: result.submissions}
-		}, // T-04/T-05: retrieve Jotform and match records.
+		// 	return {...data, jotformSubmissions: result.submissions}
+		// }, // T-04/T-05: retrieve Jotform and match records.
 		async (data) => data // T-06: prepare the dashboard's result data.
 	]
 
@@ -310,6 +314,10 @@ const auditProcessing = (() => {
 			// Future results navigation can listen here.
 			// Simulated data is explicitly marked in event.detail.simulated.
 			document.dispatchEvent(new CustomEvent('audit:complete', {detail: data}))
+			console.log('audit complete')
+			setTimeout(() => {
+				window.location.href = '../Pages/studentDashboard.html'
+			}, STEP_DELAY_MS)
 		} catch (error) {
 			if (controller !== run || run.signal.aborted) return
 

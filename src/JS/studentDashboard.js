@@ -1,4 +1,4 @@
-import { mockStudents } from './mockData.js'
+import {mockStudents} from './mockData.js'
 
 const statusLabels = {
 	enrolled: 'Enrolled',
@@ -41,13 +41,18 @@ function renderStudentCard(student) {
 	const guardian = personal.guardian
 	const martialytics = student.martialytics
 	const jotform = student.jotform || {}
-	const status = Object.hasOwn(statusLabels, student.status) ? student.status : 'unknown'
+	const status = Object.hasOwn(statusLabels, student.status)
+		? student.status
+		: 'unknown'
 	const contactName = guardian?.name || student.name
 	const email = guardian?.email || personal.studentEmail
 	const phone = guardian?.phone || personal.studentPhone
 	const cancellationDiscrepancy =
-		Boolean(jotform.cancellationDate) && martialytics?.membershipStatus === 'active'
-	const reviewNeeded = Boolean(student.review?.needed || cancellationDiscrepancy)
+		Boolean(jotform.cancellationDate) &&
+		martialytics?.membershipStatus === 'active'
+	const reviewNeeded = Boolean(
+		student.review?.needed || cancellationDiscrepancy
+	)
 	const reviewMessage =
 		student.review?.message ||
 		(cancellationDiscrepancy
@@ -108,7 +113,9 @@ export function renderStudentCards(container, students) {
 		throw new TypeError('renderStudentCards expects a DOM element container')
 	}
 	if (!Array.isArray(students)) {
-		throw new TypeError('renderStudentCards expects an array of student objects')
+		throw new TypeError(
+			'renderStudentCards expects an array of student objects'
+		)
 	}
 
 	container.innerHTML = students.length
