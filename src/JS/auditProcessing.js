@@ -221,6 +221,8 @@ const auditProcessing = (() => {
 	}
 
 	async function start(file, validation, tasks = simulatedTasks) {
+		console.log('audit starting...')
+
 		// Prevent duplicate clicks from starting parallel audits.
 		if (controller) return
 
