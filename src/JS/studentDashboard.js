@@ -179,9 +179,13 @@ studentSearch.addEventListener('input', () => {
 	})
 
 	if (sortStudents.value === 'name-asc') {
-		filteredStudents.sort((a, b) => a.name.localeCompare(b.name))
+		filteredStudents.sort((a, b) =>
+			a.name.trim().split(/\s+/).at(-1).localeCompare(b.name.trim().split(/\s+/).at(-1))
+		)
 	} else if (sortStudents.value === 'name-desc') {
-		filteredStudents.sort((a, b) => b.name.localeCompare(a.name))
+		filteredStudents.sort((a, b) =>
+			b.name.trim().split(/\s+/).at(-1).localeCompare(a.name.trim().split(/\s+/).at(-1))
+		)
 	} else if (sortStudents.value === 'oldest' || sortStudents.value === 'newest') {
 		filteredStudents.sort((a, b) => {
 			const dateA = a.jotform?.enrollmentDate
@@ -242,26 +246,36 @@ resetFilters.addEventListener('click', () => {
 
 	studentSearch.dispatchEvent(new Event('input'))
 })
-// T-07: Quick filter buttons
-const quickFilterButtons = document.querySelectorAll(
-	'.student-controls__quick-filters button'
-)
+// T-07: Display selected filters as non-clickable labels
+const selectedFilterLabels = document.querySelector('#selectedFilterLabels')
 
-quickFilterButtons.forEach(button => {
-	button.addEventListener('click', () => {
-		const selectedFilter = button.dataset.status
+function updateSelectedFilterLabels() {
+	selectedFilterLabels.innerHTML = ''
 
-		if (selectedFilter === 'jotform') {
-			statusFilter.value = 'jotform'
-			sourceFilter.value = 'jotform'
-		} else {
-			statusFilter.value = selectedFilter
-			sourceFilter.value = 'all'
+	const filters = [
+		{ value: 'trial', text: 'Trial' },
+		{ value: 'enrolled', text: 'Enrolled' },
+		{ value: 'cancelled', text: 'Cancellations' },
+		{ value: 'jotform', text: 'Jotform only' }
+	]
+
+	filters.forEach(filter => {
+		const label = document.createElement('span')
+		label.className = 'filter-label'
+
+		if (statusFilter.value === filter.value) {
+			label.classList.add('selected')
 		}
 
-		studentSearch.dispatchEvent(new Event('input'))
+		label.textContent = filter.text
+		selectedFilterLabels.appendChild(label)
 	})
-})
+}
+
+statusFilter.addEventListener('change', updateSelectedFilterLabels)
+resetFilters.addEventListener('click', updateSelectedFilterLabels)
+
+updateSelectedFilterLabels()
 
 // T-07: Expand or collapse all visible student cards
 const expandAllBtn = document.querySelector('#expandAllBtn')

@@ -550,3 +550,23 @@ h1 {
     outline: 2px solid #4197e5;
     outline-offset: 2px;
 }
+/* T-07: Filter labels */
+.student-controls__quick-filters .filter-label {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 1px solid #d5dce3;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #17191c;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: default;
+}
+
+/* Highlight only the selected filter */
+.student-controls__quick-filters .filter-label.selected {
+    background-color: #f0f6fc;
+    border-color: #4197e5;
+    color: #2563a6;
+}
