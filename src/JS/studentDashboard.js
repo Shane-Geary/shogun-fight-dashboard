@@ -40,6 +40,8 @@ function formatDate(value) {
 function renderStudentCard(student) {
 	const personal = student.personal || {}
 	const guardian = personal.guardian
+	const family = guardian || personal.household
+	const familyLabel = guardian ? 'Guardian' : 'Household'
 	const martialytics = student.martialytics
 	const jotform = student.jotform || {}
 	const status = Object.hasOwn(statusLabels, student.status)
@@ -82,11 +84,11 @@ function renderStudentCard(student) {
 							<div><dt>Student phone</dt><dd>${escapeHTML(personal.studentPhone || '—')}</dd></div>
 							<div><dt>Guardian</dt><dd>${escapeHTML(guardian?.name || '—')}</dd></div>
 							${
-								guardian
+								family
 									? `
-								<div><dt>Guardian email</dt><dd>${escapeHTML(guardian.email || '—')}</dd></div>
-								<div><dt>Guardian phone</dt><dd>${escapeHTML(guardian.phone || '—')}</dd></div>
-							`
+										<div><dt>${familyLabel} email</dt><dd>${escapeHTML(family.email || '—')}</dd></div>
+										<div><dt>${familyLabel} phone</dt><dd>${escapeHTML(family.phone || '—')}</dd></div>
+									`
 									: ''
 							}
 						</dl>
@@ -153,6 +155,7 @@ studentSearch.addEventListener('input', () => {
 	const searchText = studentSearch.value.toLowerCase().trim()
 
 	const filteredStudents = students.filter((student) => {
+		const family = student.personal?.guardian || student.personal?.household
 		const searchableText = [
 			student.name,
 			student.id,
@@ -160,16 +163,15 @@ studentSearch.addEventListener('input', () => {
 			student.personal?.guardian?.email,
 			student.personal?.guardian?.phone,
 			student.personal?.studentEmail,
-			student.personal?.studentPhone
+			student.personal?.studentPhone,
+			family?.email,
+			family?.phone
 		]
 			.filter(Boolean)
 			.join(' ')
 			.toLowerCase()
 
-		const phoneNumbers = [
-			student.personal?.studentPhone,
-			student.personal?.guardian?.phone
-		]
+		const phoneNumbers = [student.personal?.studentPhone, family?.phone]
 			.filter(Boolean)
 			.map((phone) => phone.replace(/\D/g, ''))
 
@@ -185,15 +187,13 @@ studentSearch.addEventListener('input', () => {
 			student.status === statusFilter.value ||
 			(statusFilter.value === 'jotform' && student.source === 'Jotform only') ||
 			(statusFilter.value === 'both' &&
-				student.source === 'Jotform + Martialytics')
+				student.source === 'Martialytics + Jotform')
 
 		const matchesSource =
 			sourceFilter.value === 'all' ||
 			(sourceFilter.value === 'jotform' && student.source === 'Jotform only') ||
-			(sourceFilter.value === 'martialytics' &&
-				student.source.includes('Martialytics')) ||
 			(sourceFilter.value === 'both' &&
-				student.source === 'Jotform + Martialytics')
+				student.source === 'Martialytics + Jotform')
 
 		return matchesSearch && matchesStatus && matchesSource
 	})
@@ -326,8 +326,23 @@ expandAllBtn.addEventListener('click', () => {
 
 	expandAllBtn.textContent = shouldExpand ? 'Collapse All' : 'Expand All'
 })
+function showMatchReview(messages) {
+	const panel = document.querySelector('#matchReview')
+	panel.hidden = messages.length === 0
+	panel.querySelector('summary').textContent =
+		`Records needing a match (${messages.length})`
+
+	const items = messages.map((message) => {
+		const item = document.createElement('li')
+		item.textContent = message
+		return item
+	})
+
+	panel.querySelector('ul').replaceChildren(...items)
+}
 
 document.addEventListener('audit:clear', () => {
+	showMatchReview([])
 	students = []
 	studentSearch.value = ''
 	studentsContainer.replaceChildren()
@@ -354,6 +369,7 @@ async function loadDashboard() {
 		return
 	}
 
+	showMatchReview(results.matchReview || [])
 	students = results.students
 	studentSearch.dispatchEvent(new Event('input'))
 }

@@ -127,8 +127,10 @@ function identityRank(a, b) {
 	}
 	if (aName && bName && !named) return !youth && mail ? -1 : 0
 
+	if (named && birth) return mail || household ? 6 : 5
+
 	if (youth) {
-		if (household && (named || birth)) return named && birth ? 4 : 3
+		if (household && (named || birth)) return 3
 		return named || (household && (!aName || !bName)) ? -1 : 0
 	}
 
@@ -138,7 +140,6 @@ function identityRank(a, b) {
 		return mail || payerAgrees ? -1 : 0
 	}
 
-	if (named && birth) return mail ? 6 : 5
 	if (mail) return 4
 	if (named && a.email && b.email) return -1
 	return named ? 1 : 0
@@ -294,33 +295,48 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 
 		if (!paysForChild) return true
 
-		familyBilling.set(
-			form.submissionId,
-			`Enrollment ${form.submissionId}: ${group.payer} is the payer. Their own enrollment is unconfirmed.`
-		)
+		familyBilling.set(form.submissionId, `Enrollment payer: ${group.payer}.`)
 		return false
 	})
 
-	return studentGroups.map((group) => {
+	const students = []
+	const matchReview = []
+
+	for (const group of studentGroups) {
 		const row = group.row
+		const name = group.name || row?.name
+		const submissionIds = [
+			...new Set(group.forms.map((form) => form.submissionId))
+		]
+
+		if (!name || !group.forms.length || (!row && group.notes.length)) {
+			const reference = row
+				? `CSV ID ${row.id}`
+				: `Jotform ${submissionIds.join(', ')}`
+
+			const reason =
+				group.notes.join(' ') || 'Participant identity unconfirmed.'
+			matchReview.push(
+				`${name || group.payer || 'Unnamed participant'} (${reference}). ${reason}`
+			)
+			continue
+		}
+
 		const dates = {}
 		const kinds = new Set(group.forms.map((form) => form.formType))
 
 		for (const form of group.forms) {
 			if (!['release', 'enrollment', 'cancellation'].includes(form.formType)) {
 				group.notes.push(
-					'Review form ' +
-						form.formId +
-						', submission ' +
-						form.submissionId +
-						'.'
+					`Review form ${form.formId}, submission ${form.submissionId}.`
 				)
 				continue
 			}
 
 			const key = form.formType + 'Date'
-			if (form.formDate && form.formDate > (dates[key] || ''))
+			if (form.formDate && form.formDate > (dates[key] || '')) {
 				dates[key] = form.formDate
+			}
 		}
 
 		const active = row?.info.membershipStatus === 'active'
@@ -333,9 +349,7 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 		if (cancelled && active) {
 			status = 'enrolled'
 			group.notes.push(
-				'Cancellation submitted on ' +
-					dates.cancellationDate +
-					'. Martialytics membership remains active.'
+				`Cancellation submitted on ${dates.cancellationDate}. Martialytics membership remains active.`
 			)
 		} else if (cancelled) {
 			status = 'cancelled'
@@ -346,18 +360,9 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 			kinds.has('release') &&
 			!row &&
 			completeHistory &&
-			!group.notes.length &&
-			group.name
+			!group.notes.length
 		) {
 			status = 'trial'
-		}
-
-		const name = group.name || row?.name
-		if (!name) {
-			status = 'unknown'
-			group.notes.push(
-				'Student identity unresolved. Check the signer or payer.'
-			)
 		}
 
 		const minor = group.youth || row?.youth
@@ -370,14 +375,15 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 				? {name: guardianName, email: guardianEmail, phone: guardianPhone}
 				: null
 
-		return {
+		const household =
+			!minor && (group.familyEmail || group.familyPhone)
+				? {email: group.familyEmail, phone: group.familyPhone}
+				: null
+
+		students.push({
 			id: row?.id || group.id,
-			name:
-				name ||
-				(group.payer && `Payment record: ${group.payer}`) ||
-				(row
-					? 'Martialytics record ' + row.id
-					: 'Unresolved submission ' + group.forms[0].submissionId),
+			name,
+			source: row ? 'Martialytics + Jotform' : 'Jotform only',
 			status,
 			program:
 				row?.info.program ||
@@ -386,17 +392,19 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 			personal: {
 				dateOfBirth: group.dob || row?.dob,
 				studentEmail:
-					[group.email, row?.email].find((v) => v && !same(v, guardianEmail)) ||
-					null,
+					[group.email, row?.email].find(
+						(email) => email && !same(email, guardianEmail)
+					) || null,
 				studentPhone:
 					[group.phone, row?.phone].find(
-						(v) => v && !same(phoneKey(v), phoneKey(guardianPhone))
+						(phone) => phone && !same(phoneKey(phone), phoneKey(guardianPhone))
 					) || null,
-				guardian
+				guardian,
+				household
 			},
 			martialytics: row?.info || null,
 			jotform: dates,
-			submissionIds: [...new Set(group.forms.map((form) => form.submissionId))],
+			submissionIds,
 			detailNote:
 				status === 'trial'
 					? 'Release submitted for a trial. No enrollment submission is available.'
@@ -407,6 +415,8 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 			review: group.notes.length
 				? {needed: true, message: [...new Set(group.notes)].join(' ')}
 				: null
-		}
-	})
+		})
+	}
+
+	return {students, matchReview}
 }

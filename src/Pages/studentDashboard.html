@@ -96,9 +96,9 @@
 										value="jotform"
 										data-description="Jotform-only records"
 									>
-										Jotform
+										Jotform only
 									</option>
-									<option value="both">Jotform + Martialytics</option>
+									<option value="both">Martialytics + Jotform</option>
 								</optgroup>
 							</select>
 						</label>
@@ -119,9 +119,8 @@
 
 					<select id="sourceFilter" hidden>
 						<option value="all">All Sources</option>
-						<option value="jotform">Jotform</option>
-						<option value="martialytics">Martialytics</option>
-						<option value="both">Both</option>
+						<option value="jotform">Jotform only</option>
+						<option value="both">Martialytics + Jotform</option>
 					</select>
 
 					<div class="student-controls__sort">
@@ -147,6 +146,11 @@
 						</select>
 					</div>
 				</div>
+
+				<details id="matchReview" hidden>
+					<summary></summary>
+					<ul></ul>
+				</details>
 
 				<div id="students" class="student-grid" aria-live="polite"></div>
 			</section>

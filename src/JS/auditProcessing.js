@@ -97,34 +97,16 @@ const auditProcessing = (() => {
 
 	function prepareAuditData(data) {
 		const rows = data.validation.students
-
-		const release = data.jotformSubmissions.find(
-			(s) => String(s.form_id) === '262785031969166'
-		)
-		if (release) {
-			const fields = Object.entries(release.answers || {})
-				.filter(
-					([, q]) =>
-						![
-							'control_head',
-							'control_text',
-							'control_button',
-							'control_divider'
-						].includes(q.type)
-				)
-				.map(([id, q]) => ({id, key: q.name, label: q.text, type: q.type}))
-			console.log('Release fields', JSON.stringify(fields, null, 2))
-		}
-
 		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
+		const {students, matchReview} = buildAuditStudents(rows, forms, true)
 
 		return {
 			...data,
-			normalizedJotform: forms,
 			dashboard: {
 				martialyticsCount: rows.length,
 				jotformCount: forms.length,
-				students: buildAuditStudents(rows, forms, true)
+				students,
+				matchReview
 			}
 		}
 	}
@@ -355,10 +337,6 @@ const auditProcessing = (() => {
 
 			if (!(await auditSession.ready)) return
 			if (controller !== run || run.signal.aborted) return
-
-			console.log('Martialytics row:', data.validation.students[0])
-			console.log('Original Jotform submission:', data.jotformSubmissions[0])
-			console.log('Normalized Jotform submission:', data.normalizedJotform[0])
 
 			auditSession.openDashboard(data.dashboard)
 			lastRequest = null
