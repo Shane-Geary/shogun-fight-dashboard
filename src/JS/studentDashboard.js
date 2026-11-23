@@ -343,8 +343,6 @@ async function loadDashboard() {
 			`Martialytics rows: ${results.martialyticsCount} · ` +
 			`Jotform submissions: ${results.jotformCount}. Matching pending.`
 
-		console.log('students data: ', JSON.stringify(results.students, null, 2))
-
 		return
 	}
 

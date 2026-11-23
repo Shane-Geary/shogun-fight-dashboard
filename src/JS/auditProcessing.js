@@ -95,17 +95,26 @@ const auditProcessing = (() => {
 		return {...data, jotformSubmissions: submissions}
 	}
 
+	function prepareAuditData(data) {
+		const normalizedJotform = data.jotformSubmissions.map(
+			normalizeJotformSubmission
+		)
+
+		return {
+			...data,
+			normalizedJotform,
+			dashboard: {
+				martialyticsCount: data.validation.students.length,
+				jotformCount: normalizedJotform.length
+			}
+		}
+	}
+
 	const auditTasks = [
 		(data) => data, // The selected File is already in memory.
 		(data) => data, // T-03 already validated and parsed the CSV.
 		retrieveJotform,
-		(data) => ({
-			...data,
-			dashboard: {
-				martialyticsCount: data.validation.students.length,
-				jotformCount: data.jotformSubmissions.length
-			}
-		})
+		prepareAuditData
 	]
 
 	let controller = null
@@ -327,6 +336,10 @@ const auditProcessing = (() => {
 
 			if (!(await auditSession.ready)) return
 			if (controller !== run || run.signal.aborted) return
+
+			console.log('Martialytics row:', data.validation.students[0])
+			console.log('Original Jotform submission:', data.jotformSubmissions[0])
+			console.log('Normalized Jotform submission:', data.normalizedJotform[0])
 
 			auditSession.openDashboard(data.dashboard)
 			lastRequest = null
