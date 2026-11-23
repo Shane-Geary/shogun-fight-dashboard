@@ -452,7 +452,7 @@ h1 {
 	font-weight: 400;
 }
 
-#statusFilter option {
+:is(#statusFilter, #sortStudents) option {
 	padding: 8px 12px;
 	border-radius: 3px;
 	color: var(--ink);
@@ -460,26 +460,26 @@ h1 {
 	font-weight: 400;
 }
 
-#statusFilter option:is(:hover, :focus-visible, :checked) {
+:is(#statusFilter, #sortStudents) option:is(:hover, :focus-visible, :checked) {
 	background: var(--green-soft);
 }
 
-#statusFilter option:checked {
+:is(#statusFilter, #sortStudents) option:checked {
 	font-weight: 600;
 }
 
-#statusFilter option::checkmark {
+:is(#statusFilter, #sortStudents) option::checkmark {
 	order: 1;
 	margin-left: auto;
 	color: var(--blue);
 }
 
-#statusFilter option[data-description] {
+:is(#statusFilter, #sortStudents) option[data-description] {
 	flex-wrap: wrap;
 	row-gap: 2px;
 }
 
-#statusFilter option[data-description]::after {
+:is(#statusFilter, #sortStudents) option[data-description]::after {
 	content: attr(data-description);
 	order: 2;
 	flex-basis: 100%;
@@ -563,7 +563,7 @@ h1 {
 	background: var(--surface);
 	color: var(--ink);
 	font-family: inherit;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .sr-only {
@@ -665,4 +665,70 @@ h1 {
 	background-color: #f0f6fc;
 	border-color: #4197e5;
 	color: #2563a6;
+}
+
+/* Sort control */
+#sortStudents {
+	appearance: base-select;
+	gap: 10px;
+	font-weight: 600;
+
+	padding-right: 34px;
+
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 16px;
+}
+
+#sortStudents button {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+#sortStudents::picker-icon {
+	display: none;
+}
+
+#sortStudents:open {
+	background-color: var(--green-soft);
+	border-color: var(--blue);
+	outline: none;
+}
+
+/* Open menu, aligned to the control's right edge */
+#sortStudents::picker(select) {
+	appearance: base-select;
+	box-sizing: border-box;
+	position-area: bottom span-left;
+	position-try: flip-inline;
+	width: 264px;
+	margin: 6px 0 0;
+	padding: 5px;
+
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface);
+	color: var(--ink);
+	font: inherit;
+	box-shadow: 0 4px 10px rgb(0 0 0 / 12%);
+}
+
+#sortStudents option {
+	padding: 12px;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+#sortStudents option[data-description]::after {
+	font-size: 11px;
+	line-height: 14px;
+}
+
+#sortStudents hr {
+	margin: 0;
+	border: 0;
+	border-top: 1px solid var(--line);
 }

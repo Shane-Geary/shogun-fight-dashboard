@@ -100,12 +100,21 @@
 
 						<button type="button" id="expandAllBtn">Expand All</button>
 
-						<label for="sortStudents">Sort By</label>
+						<label for="sortStudents" id="sortStudentsLabel">Name A–Z</label>
 						<select id="sortStudents">
+							<button type="button">Sort</button>
+
 							<option value="name-asc" selected>Name A–Z</option>
 							<option value="name-desc">Name Z–A</option>
-							<option value="oldest">Oldest (Enrollment Date)</option>
-							<option value="newest">Newest (Enrollment Date)</option>
+
+							<hr />
+
+							<option value="oldest" data-description="By enrollment date">
+								Oldest
+							</option>
+							<option value="newest" data-description="By enrollment date">
+								Newest
+							</option>
 						</select>
 					</div>
 				</div>
