@@ -86,26 +86,26 @@ const auditProcessing = (() => {
 			throw new Error('Unable to retrieve Jotform submissions.')
 		}
 
-		const {submissions} = await response.json()
+		const {submissions, completeHistory} = await response.json()
 
-		if (!Array.isArray(submissions)) {
-			throw new Error('Unexpected Jotform response.')
+		if (!Array.isArray(submissions) || completeHistory !== true) {
+			throw new Error('The complete Jotform history could not be retrieved.')
 		}
 
 		return {...data, jotformSubmissions: submissions}
 	}
 
 	function prepareAuditData(data) {
-		const normalizedJotform = data.jotformSubmissions.map(
-			normalizeJotformSubmission
-		)
+		const rows = data.validation.students
+		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
 
 		return {
 			...data,
-			normalizedJotform,
+			normalizedJotform: forms,
 			dashboard: {
-				martialyticsCount: data.validation.students.length,
-				jotformCount: normalizedJotform.length
+				martialyticsCount: rows.length,
+				jotformCount: forms.length,
+				students: buildAuditStudents(rows, forms, true)
 			}
 		}
 	}

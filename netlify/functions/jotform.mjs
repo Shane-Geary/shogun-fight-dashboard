@@ -33,23 +33,59 @@ export default async function handler(request, context) {
 	}
 
 	try {
-		const response = await fetch(
-			'https://api.jotform.com/user/submissions?limit=1',
-			{
-				headers: {APIKEY: apiKey},
-				signal: AbortSignal.timeout(10000)
+		const formIds = ['262785031969166', '262785002301144', '262784995113165']
+		const submissions = new Map()
+
+		for (const formId of formIds) {
+			let offset = 0
+
+			while (true) {
+				const url = new URL(
+					`https://api.jotform.com/form/${formId}/submissions`
+				)
+				url.search = new URLSearchParams({
+					limit: '100',
+					offset: String(offset),
+					orderby: 'id',
+					filter: JSON.stringify({status: 'ACTIVE'})
+				}).toString()
+
+				const response = await fetch(url, {
+					headers: {APIKEY: apiKey},
+					signal: AbortSignal.timeout(10000)
+				})
+				const data = await response.json()
+
+				if (
+					!response.ok ||
+					Number(data.responseCode) !== 200 ||
+					!Array.isArray(data.content)
+				) {
+					throw new Error('Incomplete Jotform audit.')
+				}
+
+				const page = data.content
+				if (!page.length) break
+
+				const previousSize = submissions.size
+
+				for (const entry of page) {
+					if (!entry.id || String(entry.form_id) !== formId) {
+						throw new Error('Unexpected Jotform submission.')
+					}
+					submissions.set(String(entry.id), entry)
+				}
+
+				if (submissions.size === previousSize)
+					throw new Error('Repeated Jotform page.')
+				offset += page.length
 			}
-		)
-
-		const data = await response.json()
-
-		if (!response.ok || data.responseCode !== 200) {
-			return jsonResponse(502, {
-				error: 'Unable to retrieve Jotform submissions.'
-			})
 		}
 
-		return jsonResponse(200, {submissions: data.content})
+		return jsonResponse(200, {
+			submissions: [...submissions.values()],
+			completeHistory: true
+		})
 	} catch {
 		return jsonResponse(502, {
 			error: 'Unable to connect to Jotform.'

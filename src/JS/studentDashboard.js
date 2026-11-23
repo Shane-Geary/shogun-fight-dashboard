@@ -45,10 +45,10 @@ function renderStudentCard(student) {
 	const status = Object.hasOwn(statusLabels, student.status)
 		? student.status
 		: 'unknown'
-	const email = guardian?.email || personal.studentEmail
-	const phone = guardian?.phone || personal.studentPhone
+
 	const cancellationDiscrepancy =
 		Boolean(jotform.cancellationDate) &&
+		jotform.cancellationDate >= (jotform.enrollmentDate || '') &&
 		martialytics?.membershipStatus === 'active'
 	const reviewNeeded = Boolean(
 		student.review?.needed || cancellationDiscrepancy
@@ -78,9 +78,17 @@ function renderStudentCard(student) {
 						<h3>Personal &amp; contact</h3>
 						<dl>
 							<div><dt>Date of birth</dt><dd>${formatDate(personal.dateOfBirth)}</dd></div>
-							<div><dt>Email</dt><dd>${escapeHTML(email || '—')}</dd></div>
-							<div><dt>Phone</dt><dd>${escapeHTML(phone || '—')}</dd></div>
-							${guardian ? `<div><dt>Guardian</dt><dd>${escapeHTML(guardian.name || '—')}</dd></div>` : ''}
+							<div><dt>Student email</dt><dd>${escapeHTML(personal.studentEmail || '—')}</dd></div>
+							<div><dt>Student phone</dt><dd>${escapeHTML(personal.studentPhone || '—')}</dd></div>
+							<div><dt>Guardian</dt><dd>${escapeHTML(guardian?.name || '—')}</dd></div>
+							${
+								guardian
+									? `
+								<div><dt>Guardian email</dt><dd>${escapeHTML(guardian.email || '—')}</dd></div>
+								<div><dt>Guardian phone</dt><dd>${escapeHTML(guardian.phone || '—')}</dd></div>
+							`
+									: ''
+							}
 						</dl>
 					</section>
 					<section class="detail-section" aria-label="Jotform submission details">

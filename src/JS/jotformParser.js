@@ -1,81 +1,149 @@
 function normalizeJotformSubmission(submission) {
-	const formId = String(submission?.form_id ?? '')
-	const reference = {
-		formId: formId || null,
-		submissionId: submission?.id == null ? null : String(submission.id),
-		submittedAt: submission?.created_at ?? null
+	const typeById = {
+		262785031969166: 'release',
+		262785002301144: 'enrollment',
+		262784995113165: 'adjustment'
 	}
 
-	// Question IDs belong to a specific form. Preserve other forms for review.
-	if (formId !== '262785002301144') {
-		return {...reference, formType: 'unmapped'}
-	}
+	const formId = String(submission.form_id)
+	let formType = Object.hasOwn(typeById, formId) ? typeById[formId] : 'unmapped'
+	const enrollment = formType === 'enrollment'
+	const answers = submission.answers || {}
+	const byId = (id) => answers[id]?.answer
 
-	const answer = (id) => submission.answers?.[id]?.answer
+	function field(...labels) {
+		const hits = Object.values(answers).filter((question) => {
+			const label = folded(question.text)
+				.replace(/\s*\(required[^)]*\)\s*$/, '')
+				.replace(/[:*]+$/, '')
+				.trim()
 
-	function text(value) {
-		return typeof value === 'string' ? value.trim() || null : null
+			return question.answer != null && labels.includes(label)
+		})
+
+		return hits.length === 1 ? hits[0].answer : null
 	}
 
 	function name(value) {
-		const First = text(value?.first)
-		const Last = text(value?.last)
-		const middle = text(value?.middle)
-		const suffix = text(value?.suffix)
-
-		if (!First && !Last && !middle && !suffix) return null
-		return {First, Last, middle, suffix}
+		if (typeof value === 'string') return value.trim()
+		return [value?.first, value?.last].filter(Boolean).join(' ').trim()
 	}
 
-	// Return a calendar date in the YYYY-MM-DD format used by the cards.
 	function date(value) {
-		if (!value?.year || !value.month || !value.day) return null
-
-		const iso = [
-			String(value.year),
-			String(value.month).padStart(2, '0'),
-			String(value.day).padStart(2, '0')
-		].join('-')
-
-		if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null
-
-		const parsed = new Date(iso + 'T00:00:00Z')
-		if (Number.isNaN(parsed.getTime())) return null
-
-		// Reject impossible dates such as February 30.
-		return parsed.toISOString().slice(0, 10) === iso ? iso : null
+		if (!value?.year || !value.month || !value.day) return auditDate(value)
+		return auditDate(
+			[
+				value.year,
+				String(value.month).padStart(2, '0'),
+				String(value.day).padStart(2, '0')
+			].join('-')
+		)
 	}
 
-	// Each additional person's name and DOB have their own question IDs.
-	const familyFields = [
-		{personNumber: 2, nameId: 20, dobId: 45},
-		{personNumber: 3, nameId: 22, dobId: 46},
-		{personNumber: 4, nameId: 23, dobId: 47}
-	]
+	const action = field(
+		'request type',
+		'type of request',
+		'membership adjustment',
+		'adjustment type'
+	)
+	const cancelDate = date(
+		field('cancellation date', 'cancel date', 'requested cancellation date')
+	)
+	const resumeDate = date(field('resume date', 'return date'))
 
-	const additionalMembers = []
+	if (formType === 'adjustment') {
+		const cancellation = action
+			? /^(cancel|cancellation|cancel membership|membership cancellation)$/i.test(
+					String(action).trim()
+				)
+			: cancelDate && !resumeDate
 
-	for (const {personNumber, nameId, dobId} of familyFields) {
-		const memberName = name(answer(nameId))
-		const dateOfBirth = date(answer(dobId))
+		if (cancellation) formType = 'cancellation'
+	}
 
-		if (memberName || dateOfBirth) {
-			additionalMembers.push({personNumber, name: memberName, dateOfBirth})
+	const student = name(
+		field(
+			'student name',
+			"student's name",
+			'name of student',
+			'participant name',
+			'student full name'
+		)
+	)
+	const listed = name(field('name', 'full name'))
+	const guardian = name(
+		enrollment
+			? byId(9)
+			: field(
+					'guardian name',
+					'parent/guardian name',
+					'parent or guardian name',
+					'parent/guardian'
+				)
+	)
+	const emailValue = enrollment
+		? byId(7)
+		: field('email', 'email address', 'contact email')
+	const phoneValue = enrollment
+		? byId(8)
+		: field('phone', 'phone number', 'contact phone')
+	const email = typeof emailValue === 'string' ? emailValue.trim() : ''
+	const phone =
+		typeof phoneValue === 'string' ? phoneValue : phoneValue?.full || ''
+
+	const primary = {
+		name: student || (!enrollment && !same(listed, guardian) ? listed : ''),
+		listed,
+		explicitStudent: Boolean(student),
+		payer: enrollment ? name(byId(5)) : '',
+		guardian,
+		email,
+		phone,
+		dob: date(
+			enrollment
+				? byId(26)
+				: field(
+						'date of birth',
+						'dob',
+						'student date of birth',
+						"student's date of birth"
+					)
+		)
+	}
+
+	const people = [primary]
+
+	if (enrollment) {
+		for (const [nameId, dobId] of [
+			[20, 45],
+			[22, 46],
+			[23, 47]
+		]) {
+			const member = {
+				name: name(byId(nameId)),
+				dob: date(byId(dobId)),
+				explicitStudent: true
+			}
+
+			if (member.name || member.dob) {
+				people.push({
+					...member,
+					guardian,
+					familyEmail: email,
+					familyPhone: phone
+				})
+			}
 		}
 	}
 
 	return {
-		...reference,
-		formType: 'release',
-		formDate: date(answer(14)), // “Today's Date” on the form
-		paymentRecordName: name(answer(5)),
-		guardianName: name(answer(9)),
-		primaryDateOfBirth: date(answer(26)),
-		contact: {
-			Email: text(answer(7)),
-			Phone: text(answer(8)?.full)
-		},
-		program: text(answer(66)),
-		additionalMembers
+		formId,
+		submissionId: String(submission.id),
+		formType,
+		people,
+		formDate:
+			date(enrollment ? byId(14) : field("today's date", 'date signed')) ||
+			auditDate(submission.created_at),
+		program: enrollment ? byId(66) : field('program selection', 'program')
 	}
 }
