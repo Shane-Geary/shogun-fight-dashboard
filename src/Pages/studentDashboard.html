@@ -7,20 +7,32 @@
 	<title>Weekly Dashboard | Shogun Fight Collective</title>
 	<link rel="stylesheet" href="../Styles/studentDashboard.css" />
 	<script src="../JS/studentDashboard.js" type="module" defer></script>
+	<script src="../JS/signOut.js" defer></script>
 </head>
 
 <body>
-	<header class="site-header">
-		<a class="brand" href="#" aria-label="Shogun Fight Collective home">
-			<img class="brand__logo" src="../assets/ShogunLogo.jpeg" alt="Shogun Fight Co. and Logic logo" />
-			<span class="brand__divider" aria-hidden="true"></span>
-			<span class="brand__name">
-				<strong>SHOGUN</strong>
-				<small>FIGHT COLLECTIVE</small>
-			</span>
-		</a>
-		<div class="header-actions">
-			<span class="header-label">Weekly Dashboard</span>
+	<header class="dashboard-header">
+		<div class="dashboard-header-inner">
+			<img class="dashboard-logo" src="../assets/ShogunLogo.jpeg" alt="Shogun Martial Arts and Logic" />
+
+			<span class="dashboard-title">Weekly Dashboard</span>
+
+			<div class="dashboard-account">
+				<div class="dashboard-welcome">
+					<strong>Welcome, Authorized staff</strong>
+					<p>Weekly audit · <time id="audit-date" data-audit-date></time></p>
+				</div>
+
+				<button class="sign-out-button" type="button" data-sign-out>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round" aria-hidden="true">
+						<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4
+                           M16 17l5-5-5-5M21 12H9" />
+					</svg>
+
+					<span>Sign Out</span>
+				</button>
+			</div>
 		</div>
 	</header>
 
@@ -97,6 +109,11 @@
 			<div id="students" class="student-grid" aria-live="polite"></div>
 		</section>
 	</main>
+	<script>
+		document.querySelectorAll('[data-audit-date]').forEach((element) => {
+			element.textContent = new Date().toLocaleDateString('en-US')
+		})
+	</script>
 </body>
 
 </html>
