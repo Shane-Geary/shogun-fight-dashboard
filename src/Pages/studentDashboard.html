@@ -75,6 +75,79 @@
 						</label>
 					</div>
 
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Weekly Dashboard | Shogun Fight Collective</title>
+	<link rel="stylesheet" href="../Styles/studentDashboard.css" />
+	<script src="../JS/studentDashboard.js" type="module" defer></script>
+	<script src="../JS/signOut.js" defer></script>
+</head>
+
+<body>
+	<header class="dashboard-header">
+		<div class="dashboard-header-inner">
+			<img class="dashboard-logo" src="../assets/ShogunLogo.jpeg" alt="Shogun Martial Arts and Logic" />
+
+			<span class="dashboard-title">Weekly Dashboard</span>
+
+			<div class="dashboard-account">
+				<div class="dashboard-welcome">
+					<strong>Welcome, Authorized staff</strong>
+					<p>Weekly audit · <time id="audit-date" data-audit-date></time></p>
+				</div>
+
+				<button class="sign-out-button" type="button" data-sign-out>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round" aria-hidden="true">
+						<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4
+                           M16 17l5-5-5-5M21 12H9" />
+					</svg>
+
+					<span>Sign Out</span>
+				</button>
+			</div>
+		</div>
+	</header>
+
+	<main class="dashboard">
+		<section class="page-heading" aria-labelledby="page-title">
+			<p class="eyebrow">Weekly staff audit</p>
+			<h1 id="page-title">Student &amp; prospect results</h1>
+			<p class="page-description">
+				Select a student card to expand contact and membership details.
+			</p>
+		</section>
+
+		<section class="student-section" aria-label="Students">
+
+			<div class="student-controls">
+				<div class="student-controls__top">
+					<label class="student-controls__search" for="studentSearch">
+						<span class="student-controls__search-icon" aria-hidden="true">⌕</span>
+						<input type="search" id="studentSearch"
+							placeholder="Search by student name, guardian name, email, or phone"
+							aria-label="Search by student name, guardian name, email, or phone">
+					</label>
+
+					<label class="student-controls__status" for="statusFilter">
+						<span class="sr-only">Filter by status</span>
+						<select id="statusFilter">
+							<option value="all">All statuses</option>
+
+							<optgroup label="LIFECYCLE">
+								<option value="trial">Trial</option>
+								<option value="enrolled">Enrolled</option>
+								<option value="cancelled">Cancellation</option>
+							</optgroup>
+
+							<optgroup label="DATA SOURCES">
+								<option value="jotform">Jotform only</option>
+								<option value="both">Jotform + Martialytics</option>
+							</optgroup>
+						</select>
+					</label>
+				</div>
 					<div class="student-controls__bottom">
 						<div
 							class="student-controls__quick-filters"
@@ -109,6 +182,15 @@
 
 							<hr />
 
+			<div id="students" class="student-grid" aria-live="polite"></div>
+		</section>
+	</main>
+	<script>
+		document.querySelectorAll('[data-audit-date]').forEach((element) => {
+			element.textContent = new Date().toLocaleDateString('en-US')
+		})
+	</script>
+</body>
 							<option value="oldest" data-description="By enrollment date">
 								Oldest
 							</option>
