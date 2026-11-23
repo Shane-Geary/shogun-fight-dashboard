@@ -58,6 +58,39 @@ function renderStudentCard(student) {
 		(cancellationDiscrepancy
 			? `Cancellation submitted on ${formatDate(jotform.cancellationDate)}, but membership is still active.`
 			: '')
+	// Jotform-only trial students get a manual SMS follow-up button.
+	// The phone value prioritizes the guardian's number, if no number is found, it is noted as unavailable.
+const isJotformTrial =
+	student.status === 'trial' && student.source === 'Jotform only'
+
+const followUpMessage =
+	"Hi there, this is Shogun Fight Co. We wanted to follow up regarding your trial class you recently completed with us. We would love for you to train with us! Please let us know if there's anything holding you back. We're here for you!"
+
+const followUpAction = isJotformTrial
+	? phone
+		? `
+			<section class="detail-section follow-up-section" aria-label="Follow-up actions">
+				<h3>Follow-up</h3>
+				<a
+					class="follow-up-button"
+					href="sms:${encodeURIComponent(phone)}?body=${encodeURIComponent(followUpMessage)}"
+					aria-label="Send text message to ${escapeHTML(phone)}"
+				>
+					Send Text
+				</a>
+				<p class="detail-note">Phone: ${escapeHTML(phone)}</p>
+			</section>
+		`
+		: `
+			<section class="detail-section follow-up-section" aria-label="Follow-up actions">
+				<h3>Follow-up</h3>
+				<p class="detail-note">No phone number available for text follow-up.</p>
+			</section>
+		`
+	: ''
+
+// The Send Text button opens the device's messaging app with the recipient
+// and follow-up message pre-filled for staff to review and send manually.
 
 	return `
 		<article class="student-card">
@@ -101,6 +134,8 @@ function renderStudentCard(student) {
 							<div><dt>Last attendance</dt><dd>${formatDate(martialytics?.lastAttendance)}</dd></div>
 						</dl>
 					</section>
+					
+					${followUpAction}
 				</div>
 				${reviewNeeded ? `<p class="review-alert"><strong>Review needed</strong> ${escapeHTML(reviewMessage)}</p>` : ''}
 			</details>
