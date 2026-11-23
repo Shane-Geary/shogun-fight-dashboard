@@ -97,6 +97,25 @@ const auditProcessing = (() => {
 
 	function prepareAuditData(data) {
 		const rows = data.validation.students
+
+		const release = data.jotformSubmissions.find(
+			(s) => String(s.form_id) === '262785031969166'
+		)
+		if (release) {
+			const fields = Object.entries(release.answers || {})
+				.filter(
+					([, q]) =>
+						![
+							'control_head',
+							'control_text',
+							'control_button',
+							'control_divider'
+						].includes(q.type)
+				)
+				.map(([id, q]) => ({id, key: q.name, label: q.text, type: q.type}))
+			console.log('Release fields', JSON.stringify(fields, null, 2))
+		}
+
 		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
 
 		return {

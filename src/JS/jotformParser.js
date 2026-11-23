@@ -8,6 +8,8 @@ function normalizeJotformSubmission(submission) {
 	const formId = String(submission.form_id)
 	let formType = Object.hasOwn(typeById, formId) ? typeById[formId] : 'unmapped'
 	const enrollment = formType === 'enrollment'
+	const release = formType === 'release'
+	const usesParticipantFields = release || enrollment
 	const answers = submission.answers || {}
 	const byId = (id) => answers[id]?.answer
 
@@ -61,18 +63,20 @@ function normalizeJotformSubmission(submission) {
 		if (cancellation) formType = 'cancellation'
 	}
 
-	const student = name(
-		field(
-			'student name',
-			"student's name",
-			'name of student',
-			'participant name',
-			'student full name'
-		)
-	)
+	const student = release
+		? name(byId(5))
+		: name(
+				field(
+					'student name',
+					"student's name",
+					'name of student',
+					'participant name',
+					'student full name'
+				)
+			)
 	const listed = name(field('name', 'full name'))
 	const guardian = name(
-		enrollment
+		usesParticipantFields
 			? byId(9)
 			: field(
 					'guardian name',
@@ -81,10 +85,10 @@ function normalizeJotformSubmission(submission) {
 					'parent/guardian'
 				)
 	)
-	const emailValue = enrollment
+	const emailValue = usesParticipantFields
 		? byId(7)
 		: field('email', 'email address', 'contact email')
-	const phoneValue = enrollment
+	const phoneValue = usesParticipantFields
 		? byId(8)
 		: field('phone', 'phone number', 'contact phone')
 	const email = typeof emailValue === 'string' ? emailValue.trim() : ''
@@ -100,7 +104,7 @@ function normalizeJotformSubmission(submission) {
 		email,
 		phone,
 		dob: date(
-			enrollment
+			usesParticipantFields
 				? byId(26)
 				: field(
 						'date of birth',
@@ -113,7 +117,7 @@ function normalizeJotformSubmission(submission) {
 
 	const people = [primary]
 
-	if (enrollment) {
+	if (usesParticipantFields) {
 		for (const [nameId, dobId] of [
 			[20, 45],
 			[22, 46],
@@ -142,8 +146,9 @@ function normalizeJotformSubmission(submission) {
 		formType,
 		people,
 		formDate:
-			date(enrollment ? byId(14) : field("today's date", 'date signed')) ||
-			auditDate(submission.created_at),
+			date(
+				usesParticipantFields ? byId(14) : field("today's date", 'date signed')
+			) || auditDate(submission.created_at),
 		program: enrollment ? byId(66) : field('program selection', 'program')
 	}
 }

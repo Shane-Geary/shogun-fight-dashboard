@@ -51,6 +51,15 @@ function rosterPerson(row) {
 		keys.map((key) => fields.get(key)).find(Boolean) || ''
 	const dob = auditDate(get('dob', 'dateofbirth', 'birthdate', 'birthday'))
 
+	const activeFlag = get('isactive')
+	const legacyStatus = get('status').toLowerCase()
+	let membershipStatus = ['active', 'inactive'].includes(legacyStatus)
+		? legacyStatus
+		: null
+
+	if (activeFlag === '1') membershipStatus = 'active'
+	if (activeFlag === '0') membershipStatus = 'inactive'
+
 	return {
 		id: String(row.ID).trim(),
 		name: [row.First, row.Last].filter(Boolean).join(' ').trim(),
@@ -60,11 +69,16 @@ function rosterPerson(row) {
 		youth: isYouth(dob, new Date().toISOString().slice(0, 10)),
 		emergency: get('emergencycontact', 'emergencycontactname', 'emergencyname'),
 		familyEmail: get('emergencycontactemail', 'guardianemail'),
-		familyPhone: get('emergencycontactphone', 'emergencyphone'),
+		familyPhone: get(
+			'emergencynumber',
+			'emergencycontactphone',
+			'emergencyphone'
+		),
 		info: {
-			membershipStatus: row.Status?.trim().toLowerCase() || null,
+			membershipStatus,
 			startDate: auditDate(
 				get(
+					'joinedon',
 					'startdate',
 					'membershipstartdate',
 					'joindate',
@@ -72,9 +86,10 @@ function rosterPerson(row) {
 					'joined'
 				)
 			),
-			program: get('program', 'membershipprogram', 'classes') || null,
+			program:
+				get('stylesranks', 'program', 'membershipprogram', 'classes') || null,
 			lastAttendance: auditDate(
-				get('lastattendance', 'lastattended', 'lastvisit', 'lastcheckin')
+				get('lastattended', 'lastattendance', 'lastvisit', 'lastcheckin')
 			)
 		}
 	}
@@ -106,7 +121,10 @@ function identityRank(a, b) {
 		same(phoneKey(a.familyPhone), phoneKey(b.phone)) ||
 		same(phoneKey(b.familyPhone), phoneKey(a.phone))
 
-	if (a.dob && b.dob && !birth) return named || (!youth && mail) ? -1 : 0
+	if (a.dob && b.dob && !birth) {
+		if (aName && bName && !named) return 0
+		return named || (!youth && mail) ? -1 : 0
+	}
 	if (aName && bName && !named) return !youth && mail ? -1 : 0
 
 	if (youth) {
@@ -120,9 +138,9 @@ function identityRank(a, b) {
 		return mail || payerAgrees ? -1 : 0
 	}
 
+	if (named && birth) return mail ? 6 : 5
 	if (mail) return 4
 	if (named && a.email && b.email) return -1
-	if (named && birth) return 3
 	return named ? 1 : 0
 }
 
@@ -250,7 +268,40 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 		}
 	}
 
-	return groups.map((group) => {
+	const familyBilling = new Map()
+
+	const studentGroups = groups.filter((group) => {
+		if (group.row || group.name || !group.payer || group.forms.length !== 1) {
+			return true
+		}
+
+		const [form] = group.forms
+		if (
+			form.formType !== 'enrollment' ||
+			!form.people.slice(1).some((person) => person.name)
+		) {
+			return true
+		}
+
+		const paysForChild = groups.some(
+			(member) =>
+				member !== group &&
+				member.forms.includes(form) &&
+				(member.youth || member.row?.youth) &&
+				(same(group.payer, member.guardian) ||
+					same(group.payer, member.row?.emergency))
+		)
+
+		if (!paysForChild) return true
+
+		familyBilling.set(
+			form.submissionId,
+			`Enrollment ${form.submissionId}: ${group.payer} is the payer. Their own enrollment is unconfirmed.`
+		)
+		return false
+	})
+
+	return studentGroups.map((group) => {
 		const row = group.row
 		const dates = {}
 		const kinds = new Set(group.forms.map((form) => form.formType))
@@ -302,10 +353,12 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 		}
 
 		const name = group.name || row?.name
-		if (!name)
+		if (!name) {
+			status = 'unknown'
 			group.notes.push(
 				'Student identity unresolved. Check the signer or payer.'
 			)
+		}
 
 		const minor = group.youth || row?.youth
 		const guardianName = group.guardian || (minor && row?.emergency) || ''
@@ -321,14 +374,10 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 			id: row?.id || group.id,
 			name:
 				name ||
+				(group.payer && `Payment record: ${group.payer}`) ||
 				(row
 					? 'Martialytics record ' + row.id
 					: 'Unresolved submission ' + group.forms[0].submissionId),
-			source: !row
-				? 'Jotform only'
-				: group.forms.length
-					? 'Jotform + Martialytics'
-					: 'Martialytics only',
 			status,
 			program:
 				row?.info.program ||
@@ -351,9 +400,10 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 			detailNote:
 				status === 'trial'
 					? 'Release submitted for a trial. No enrollment submission is available.'
-					: !name && group.payer
-						? 'Payment record: ' + group.payer
-						: null,
+					: group.forms
+							.map((form) => familyBilling.get(form.submissionId))
+							.filter(Boolean)
+							.join(' ') || null,
 			review: group.notes.length
 				? {needed: true, message: [...new Set(group.notes)].join(' ')}
 				: null

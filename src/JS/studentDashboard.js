@@ -103,9 +103,9 @@ function renderStudentCard(student) {
 					<section class="detail-section" aria-label="Martialytics membership details">
 						<h3>Martialytics</h3>
 						<dl>
-							<div><dt>Membership</dt><dd>${escapeHTML(martialytics?.membershipStatus || 'No record')}</dd></div>
+							<div><dt>Membership</dt><dd>${escapeHTML(martialytics ? martialytics.membershipStatus || 'Unknown' : 'No record')}</dd></div>
 							<div><dt>Start date</dt><dd>${formatDate(martialytics?.startDate)}</dd></div>
-							<div><dt>Program</dt><dd>${escapeHTML(martialytics?.program || student.program || '—')}</dd></div>
+							<div><dt>Program</dt><dd>${escapeHTML(martialytics?.program || '—')}</dd></div>
 							<div><dt>Last attendance</dt><dd>${formatDate(martialytics?.lastAttendance)}</dd></div>
 						</dl>
 					</section>
