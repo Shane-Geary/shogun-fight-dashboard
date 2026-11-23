@@ -426,17 +426,109 @@ h1 {
 	color: var(--ink);
 }
 
+/* Closed status filter */
 .student-controls__status select {
+	/* Fallback, followed by customizable select rendering */
+	-webkit-appearance: none;
+	appearance: none;
+	appearance: base-select;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0;
+
 	width: 100%;
+	min-width: 0;
 	height: 44px;
-	padding: 0 14px;
+	padding: 0 40px;
+
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	background-color: var(--surface);
+	color: var(--ink);
+
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	text-align: center;
+	text-align-last: center;
+
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 20px center;
+	background-size: 20px;
+}
+
+/* SVG chevron */
+.student-controls__status select::picker-icon {
+	display: none;
+}
+
+/* Open dropdown menu */
+.student-controls__status select::picker(select) {
+	appearance: base-select;
+	box-sizing: border-box;
+
+	position-area: bottom span-right;
+	position-try: none;
+	width: anchor-size(width);
+	margin: 4px 0 0;
+
+	padding: 3px;
+	text-align: left;
+	font-weight: 400;
+
 	border: 1px solid var(--line);
 	border-radius: 7px;
 	background: var(--surface);
 	color: var(--ink);
 	font-family: inherit;
 	font-size: 13px;
+}
+
+#statusFilter optgroup {
+	padding-top: 3px;
+	border-top: 1px solid var(--line);
+	color: #475467;
+	font-size: 10px;
+	font-weight: 400;
+}
+
+:is(#statusFilter, #sortStudents) option {
+	padding: 8px 12px;
+	border-radius: 3px;
+	color: var(--ink);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+:is(#statusFilter, #sortStudents) option:is(:hover, :focus-visible, :checked) {
+	background: var(--green-soft);
+}
+
+:is(#statusFilter, #sortStudents) option:checked {
 	font-weight: 600;
+}
+
+:is(#statusFilter, #sortStudents) option::checkmark {
+	order: 1;
+	margin-left: auto;
+	color: var(--blue);
+}
+
+:is(#statusFilter, #sortStudents) option[data-description] {
+	flex-wrap: wrap;
+	row-gap: 2px;
+}
+
+:is(#statusFilter, #sortStudents) option[data-description]::after {
+	content: attr(data-description);
+	order: 2;
+	flex-basis: 100%;
+	color: var(--muted);
+	font-size: 10px;
+	font-weight: 400;
 }
 
 .student-controls__bottom {
@@ -514,7 +606,7 @@ h1 {
 	background: var(--surface);
 	color: var(--ink);
 	font-family: inherit;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .sr-only {
@@ -562,7 +654,9 @@ h1 {
 	font-weight: 600;
 	cursor: pointer;
 	white-space: nowrap;
-	transition: background-color 0.2s, border-color 0.2s;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s;
 }
 
 #expandAllBtn:hover {
@@ -580,7 +674,9 @@ h1 {
 #sortStudents {
 	cursor: pointer;
 	background-color: #fff;
-	transition: background-color 0.2s, border-color 0.2s;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s;
 }
 
 #statusFilter:hover:not(:focus),
@@ -616,4 +712,70 @@ h1 {
 	background-color: #f0f6fc;
 	border-color: #4197e5;
 	color: #2563a6;
+}
+
+/* Sort control */
+#sortStudents {
+	appearance: base-select;
+	gap: 10px;
+	font-weight: 600;
+
+	padding-right: 34px;
+
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 16px;
+}
+
+#sortStudents button {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+#sortStudents::picker-icon {
+	display: none;
+}
+
+#sortStudents:open {
+	background-color: var(--green-soft);
+	border-color: var(--blue);
+	outline: none;
+}
+
+/* Open menu, aligned to the control's right edge */
+#sortStudents::picker(select) {
+	appearance: base-select;
+	box-sizing: border-box;
+	position-area: bottom span-left;
+	position-try: flip-inline;
+	width: 264px;
+	margin: 6px 0 0;
+	padding: 5px;
+
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface);
+	color: var(--ink);
+	font: inherit;
+	box-shadow: 0 4px 10px rgb(0 0 0 / 12%);
+}
+
+#sortStudents option {
+	padding: 12px;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+#sortStudents option[data-description]::after {
+	font-size: 11px;
+	line-height: 14px;
+}
+
+#sortStudents hr {
+	margin: 0;
+	border: 0;
+	border-top: 1px solid var(--line);
 }

@@ -1,4 +1,4 @@
-import { mockStudents } from './mockData.js'
+import {mockStudents} from './mockData.js'
 
 const statusLabels = {
 	enrolled: 'Enrolled',
@@ -138,9 +138,12 @@ const sortStudents = document.querySelector('#sortStudents')
 const resetFilters = document.querySelector('#resetFilters')
 
 studentSearch.addEventListener('input', () => {
+	document.querySelector('#sortStudentsLabel').textContent =
+		sortStudents.selectedOptions[0].text
+
 	const searchText = studentSearch.value.toLowerCase().trim()
 
-	const filteredStudents = mockStudents.filter(student => {
+	const filteredStudents = mockStudents.filter((student) => {
 		const searchableText = [
 			student.name,
 			student.id,
@@ -149,44 +152,63 @@ studentSearch.addEventListener('input', () => {
 			student.personal?.guardian?.phone,
 			student.personal?.studentEmail,
 			student.personal?.studentPhone
-		].filter(Boolean).join(' ').toLowerCase()
+		]
+			.filter(Boolean)
+			.join(' ')
+			.toLowerCase()
 
 		const phoneNumbers = [
 			student.personal?.studentPhone,
 			student.personal?.guardian?.phone
-		].filter(Boolean).map(phone => phone.replace(/\D/g, ''))
+		]
+			.filter(Boolean)
+			.map((phone) => phone.replace(/\D/g, ''))
 
 		const searchDigits = searchText.replace(/\D/g, '')
 
 		const matchesSearch =
 			searchableText.includes(searchText) ||
 			(searchDigits.length >= 3 &&
-				phoneNumbers.some(phone => phone.includes(searchDigits)))
+				phoneNumbers.some((phone) => phone.includes(searchDigits)))
 
 		const matchesStatus =
 			statusFilter.value === 'all' ||
 			student.status === statusFilter.value ||
 			(statusFilter.value === 'jotform' && student.source === 'Jotform only') ||
-			(statusFilter.value === 'both' && student.source === 'Jotform + Martialytics')
+			(statusFilter.value === 'both' &&
+				student.source === 'Jotform + Martialytics')
 
 		const matchesSource =
 			sourceFilter.value === 'all' ||
 			(sourceFilter.value === 'jotform' && student.source === 'Jotform only') ||
-			(sourceFilter.value === 'martialytics' && student.source.includes('Martialytics')) ||
-			(sourceFilter.value === 'both' && student.source === 'Jotform + Martialytics')
+			(sourceFilter.value === 'martialytics' &&
+				student.source.includes('Martialytics')) ||
+			(sourceFilter.value === 'both' &&
+				student.source === 'Jotform + Martialytics')
 
 		return matchesSearch && matchesStatus && matchesSource
 	})
 
 	if (sortStudents.value === 'name-asc') {
 		filteredStudents.sort((a, b) =>
-			a.name.trim().split(/\s+/).at(-1).localeCompare(b.name.trim().split(/\s+/).at(-1))
+			a.name
+				.trim()
+				.split(/\s+/)
+				.at(-1)
+				.localeCompare(b.name.trim().split(/\s+/).at(-1))
 		)
 	} else if (sortStudents.value === 'name-desc') {
 		filteredStudents.sort((a, b) =>
-			b.name.trim().split(/\s+/).at(-1).localeCompare(a.name.trim().split(/\s+/).at(-1))
+			b.name
+				.trim()
+				.split(/\s+/)
+				.at(-1)
+				.localeCompare(a.name.trim().split(/\s+/).at(-1))
 		)
-	} else if (sortStudents.value === 'oldest' || sortStudents.value === 'newest') {
+	} else if (
+		sortStudents.value === 'oldest' ||
+		sortStudents.value === 'newest'
+	) {
 		filteredStudents.sort((a, b) => {
 			const dateA = a.jotform?.enrollmentDate
 			const dateB = b.jotform?.enrollmentDate
@@ -218,7 +240,11 @@ studentSearch.addEventListener('input', () => {
 		activeFilters.push(statusFilter.options[statusFilter.selectedIndex].text)
 	}
 
-	if (sourceFilter.value !== 'all' && statusFilter.value !== 'jotform' && statusFilter.value !== 'both') {
+	if (
+		sourceFilter.value !== 'all' &&
+		statusFilter.value !== 'jotform' &&
+		statusFilter.value !== 'both'
+	) {
 		activeFilters.push(sourceFilter.options[sourceFilter.selectedIndex].text)
 	}
 
@@ -227,7 +253,8 @@ studentSearch.addEventListener('input', () => {
 	}
 
 	document.querySelector('.student-controls__active').textContent =
-		'Active filters: ' + (activeFilters.length ? activeFilters.join(', ') : 'None')
+		'Active filters: ' +
+		(activeFilters.length ? activeFilters.join(', ') : 'None')
 })
 statusFilter.addEventListener('change', () => {
 	studentSearch.dispatchEvent(new Event('input'))
@@ -253,13 +280,13 @@ function updateSelectedFilterLabels() {
 	selectedFilterLabels.innerHTML = ''
 
 	const filters = [
-		{ value: 'trial', text: 'Trial' },
-		{ value: 'enrolled', text: 'Enrolled' },
-		{ value: 'cancelled', text: 'Cancellations' },
-		{ value: 'jotform', text: 'Jotform only' }
+		{value: 'trial', text: 'Trial'},
+		{value: 'enrolled', text: 'Enrolled'},
+		{value: 'cancelled', text: 'Cancellations'},
+		{value: 'jotform', text: 'Jotform only'}
 	]
 
-	filters.forEach(filter => {
+	filters.forEach((filter) => {
 		const label = document.createElement('span')
 		label.className = 'filter-label'
 
@@ -284,7 +311,7 @@ expandAllBtn.addEventListener('click', () => {
 	const studentCards = document.querySelectorAll('#students details')
 	const shouldExpand = expandAllBtn.textContent === 'Expand All'
 
-	studentCards.forEach(card => {
+	studentCards.forEach((card) => {
 		card.open = shouldExpand
 	})
 
