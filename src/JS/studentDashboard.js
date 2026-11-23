@@ -1,4 +1,5 @@
-import {mockStudents} from './mockData.js'
+// import {mockStudents} from './mockData.js'
+let students = []
 
 const statusLabels = {
 	enrolled: 'Enrolled',
@@ -124,13 +125,13 @@ export function renderStudentCards(container, students) {
 
 const studentsContainer = document.querySelector('#students')
 
-renderStudentCards(
-	studentsContainer,
-	[...mockStudents].sort((a, b) => a.name.localeCompare(b.name))
-)
+// renderStudentCards(
+// 	studentsContainer,
+// 	[...mockStudents].sort((a, b) => a.name.localeCompare(b.name))
+// )
 
-document.querySelector('#studentResultCount').textContent =
-	`STUDENTS · ${mockStudents.length} RESULTS`
+// document.querySelector('#studentResultCount').textContent =
+// `STUDENTS · ${mockStudents.length} RESULTS`
 const studentSearch = document.querySelector('#studentSearch')
 const statusFilter = document.querySelector('#statusFilter')
 const sourceFilter = document.querySelector('#sourceFilter')
@@ -143,7 +144,7 @@ studentSearch.addEventListener('input', () => {
 
 	const searchText = studentSearch.value.toLowerCase().trim()
 
-	const filteredStudents = mockStudents.filter((student) => {
+	const filteredStudents = students.filter((student) => {
 		const searchableText = [
 			student.name,
 			student.id,
@@ -317,3 +318,38 @@ expandAllBtn.addEventListener('click', () => {
 
 	expandAllBtn.textContent = shouldExpand ? 'Collapse All' : 'Expand All'
 })
+
+document.addEventListener('audit:clear', () => {
+	students = []
+	studentSearch.value = ''
+	studentsContainer.replaceChildren()
+})
+
+async function loadDashboard() {
+	if (!(await auditSession.ready)) return
+
+	const results = auditSession.takeResults()
+
+	if (!results) {
+		location.replace('/Pages/csvUpload.html')
+		return
+	}
+
+	// Temporary checkpoint until T-05 produces matched student records.
+	if (!Array.isArray(results.students)) {
+		document.querySelector('.student-controls').style.display = 'none'
+
+		studentsContainer.textContent =
+			`Martialytics rows: ${results.martialyticsCount} · ` +
+			`Jotform submissions: ${results.jotformCount}. Matching pending.`
+
+		console.log('students data: ', JSON.stringify(results.students, null, 2))
+
+		return
+	}
+
+	students = results.students
+	studentSearch.dispatchEvent(new Event('input'))
+}
+
+loadDashboard()

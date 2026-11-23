@@ -47,7 +47,11 @@ export async function getSession(context) {
 
 		if (!allowedIds.includes(payload.sub)) return null
 
-		return {id: payload.sub, name: payload.name || ''}
+		return {
+			id: payload.sub,
+			name: payload.name || '',
+			expiresAt: payload.exp * 1000
+		}
 	} catch {
 		return null
 	}

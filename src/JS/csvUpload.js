@@ -186,3 +186,15 @@ startAuditButton.addEventListener('click', () => {
 		auditProcessing.start(currentFile, currentValidation)
 	}
 })
+
+auditSession.discard()
+
+document.addEventListener('audit:clear', () => {
+	auditProcessing.cancel()
+	fileSelectionNumber++
+	currentFile = null
+	currentValidation = null
+	csvFile.value = ''
+	fileName.textContent = ''
+	uploadStatus.textContent = ''
+})
