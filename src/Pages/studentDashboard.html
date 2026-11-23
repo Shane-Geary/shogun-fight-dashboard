@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../Styles/studentDashboard.css" />
 		<script src="../JS/studentDashboard.js" type="module" defer></script>
 	</head>
+
 	<body>
 		<header class="site-header">
 			<a class="brand" href="#" aria-label="Shogun Fight Collective home">
@@ -36,6 +37,88 @@
 			</section>
 
 			<section class="student-section" aria-label="Students">
+				<div class="student-controls">
+					<div class="student-controls__top">
+						<label class="student-controls__search" for="studentSearch">
+							<span class="student-controls__search-icon" aria-hidden="true"
+								>⌕</span
+							>
+							<input
+								type="search"
+								id="studentSearch"
+								placeholder="Search by student name, guardian name, email, or phone"
+								aria-label="Search by student name, guardian name, email, or phone"
+							/>
+						</label>
+
+						<label class="student-controls__status" for="statusFilter">
+							<span class="sr-only">Filter by status</span>
+							<select id="statusFilter" class="status-filter">
+								<option value="all">All statuses</option>
+
+								<optgroup label="LIFECYCLE">
+									<option value="trial">Trial</option>
+									<option value="enrolled">Enrolled</option>
+									<option value="cancelled">Cancellation</option>
+								</optgroup>
+
+								<optgroup label="DATA SOURCES">
+									<option
+										value="jotform"
+										data-description="Jotform-only records"
+									>
+										Jotform
+									</option>
+									<option value="both">Jotform + Martialytics</option>
+								</optgroup>
+							</select>
+						</label>
+					</div>
+
+					<div class="student-controls__bottom">
+						<div
+							class="student-controls__quick-filters"
+							id="selectedFilterLabels"
+							aria-live="polite"
+						></div>
+
+						<div class="student-controls__actions">
+							<span class="student-controls__active">Active filters: None</span>
+							<button type="button" id="resetFilters">Clear all</button>
+						</div>
+					</div>
+
+					<select id="sourceFilter" hidden>
+						<option value="all">All Sources</option>
+						<option value="jotform">Jotform</option>
+						<option value="martialytics">Martialytics</option>
+						<option value="both">Both</option>
+					</select>
+
+					<div class="student-controls__sort">
+						<span id="studentResultCount">STUDENTS · 0 RESULTS</span>
+
+						<button type="button" id="expandAllBtn">Expand All</button>
+
+						<label for="sortStudents" id="sortStudentsLabel">Name A–Z</label>
+						<select id="sortStudents">
+							<button type="button">Sort</button>
+
+							<option value="name-asc" selected>Name A–Z</option>
+							<option value="name-desc">Name Z–A</option>
+
+							<hr />
+
+							<option value="oldest" data-description="By enrollment date">
+								Oldest
+							</option>
+							<option value="newest" data-description="By enrollment date">
+								Newest
+							</option>
+						</select>
+					</div>
+				</div>
+
 				<div id="students" class="student-grid" aria-live="polite"></div>
 			</section>
 		</main>

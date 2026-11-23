@@ -339,3 +339,396 @@ h1 {
 		padding: 14px;
 	}
 }
+
+/* T-07: Student Search, Sort & Filter Controls */
+
+.student-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 22px;
+}
+
+.student-controls__top {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 220px;
+	gap: 12px;
+}
+
+.student-controls__search {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	padding: 0 14px;
+	background: var(--surface);
+	border: 1px solid var(--line);
+	border-radius: 7px;
+}
+
+.student-controls__search-icon {
+	color: var(--muted);
+	font-size: 22px;
+}
+
+.student-controls__search input {
+	width: 100%;
+	min-width: 0;
+	height: 42px;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: inherit;
+	font-size: 13px;
+	color: var(--ink);
+}
+
+/* Closed status filter */
+.student-controls__status select {
+	/* Fallback, followed by customizable select rendering */
+	-webkit-appearance: none;
+	appearance: none;
+	appearance: base-select;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0;
+
+	width: 100%;
+	min-width: 0;
+	height: 44px;
+	padding: 0 40px;
+
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	background-color: var(--surface);
+	color: var(--ink);
+
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	text-align: center;
+	text-align-last: center;
+
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 20px center;
+	background-size: 20px;
+}
+
+/* SVG chevron */
+.student-controls__status select::picker-icon {
+	display: none;
+}
+
+/* Open dropdown menu */
+.student-controls__status select::picker(select) {
+	appearance: base-select;
+	box-sizing: border-box;
+
+	position-area: bottom span-right;
+	position-try: none;
+	width: anchor-size(width);
+	margin: 4px 0 0;
+
+	padding: 3px;
+	text-align: left;
+	font-weight: 400;
+
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	background: var(--surface);
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 13px;
+}
+
+#statusFilter optgroup {
+	padding-top: 3px;
+	border-top: 1px solid var(--line);
+	color: #475467;
+	font-size: 10px;
+	font-weight: 400;
+}
+
+:is(#statusFilter, #sortStudents) option {
+	padding: 8px 12px;
+	border-radius: 3px;
+	color: var(--ink);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+:is(#statusFilter, #sortStudents) option:is(:hover, :focus-visible, :checked) {
+	background: var(--green-soft);
+}
+
+:is(#statusFilter, #sortStudents) option:checked {
+	font-weight: 600;
+}
+
+:is(#statusFilter, #sortStudents) option::checkmark {
+	order: 1;
+	margin-left: auto;
+	color: var(--blue);
+}
+
+:is(#statusFilter, #sortStudents) option[data-description] {
+	flex-wrap: wrap;
+	row-gap: 2px;
+}
+
+:is(#statusFilter, #sortStudents) option[data-description]::after {
+	content: attr(data-description);
+	order: 2;
+	flex-basis: 100%;
+	color: var(--muted);
+	font-size: 10px;
+	font-weight: 400;
+}
+
+.student-controls__bottom {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.student-controls__quick-filters,
+.student-controls__actions,
+.student-controls__sort {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.student-controls__quick-filters button {
+	padding: 8px 12px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--surface);
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.student-controls__quick-filters button:hover {
+	border-color: var(--blue);
+	background: var(--green-soft);
+}
+
+.student-controls__active {
+	color: var(--muted);
+	font-size: 12px;
+}
+
+#resetFilters {
+	padding: 6px 8px;
+	border: none;
+	background: transparent;
+	color: var(--blue);
+	font-family: inherit;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+#resetFilters:hover {
+	text-decoration: underline;
+}
+
+.student-controls__sort {
+	justify-content: flex-end;
+	padding: 12px;
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	background: var(--surface);
+}
+
+.student-controls__sort label {
+	color: var(--muted);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.student-controls__sort select {
+	height: 34px;
+	padding: 0 10px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--surface);
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 14px;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+@media (max-width: 720px) {
+	.student-controls__top {
+		grid-template-columns: 1fr;
+	}
+
+	.student-controls__bottom {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.student-controls__sort {
+		justify-content: flex-start;
+	}
+}
+#studentResultCount {
+	margin-right: auto;
+	font-size: 14px;
+	font-weight: 700;
+	color: #667085;
+}
+/* T-07: Expand All / Collapse All button */
+#expandAllBtn {
+	background: #fff;
+	color: #17191c;
+	border: 1px solid #d5dce3;
+	border-radius: 10px;
+	padding: 12px 18px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s;
+}
+
+#expandAllBtn:hover {
+	background: #f0f6fc;
+	border-color: #4197e5;
+}
+
+#expandAllBtn:focus-visible {
+	outline: 2px solid #4197e5;
+	outline-offset: 2px;
+}
+/* T-07: Dropdown hover and focus styling */
+#statusFilter,
+#sortStudents {
+	cursor: pointer;
+	background-color: #fff;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s;
+}
+
+#statusFilter:hover:not(:focus),
+#sortStudents:hover:not(:focus) {
+	background-color: #f0f6fc;
+	border-color: #4197e5;
+}
+
+#statusFilter:focus,
+#sortStudents:focus {
+	background-color: #fff;
+	border-color: #4197e5;
+	outline: 2px solid #4197e5;
+	outline-offset: 2px;
+}
+/* T-07: Filter labels */
+.student-controls__quick-filters .filter-label {
+	display: inline-block;
+	padding: 8px 12px;
+	border: 1px solid #d5dce3;
+	border-radius: 6px;
+	background-color: #fff;
+	color: #17191c;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: default;
+}
+
+/* Highlight only the selected filter */
+.student-controls__quick-filters .filter-label.selected {
+	background-color: #f0f6fc;
+	border-color: #4197e5;
+	color: #2563a6;
+}
+
+/* Sort control */
+#sortStudents {
+	appearance: base-select;
+	gap: 10px;
+	font-weight: 600;
+
+	padding-right: 34px;
+
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 16px;
+}
+
+#sortStudents button {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+#sortStudents::picker-icon {
+	display: none;
+}
+
+#sortStudents:open {
+	background-color: var(--green-soft);
+	border-color: var(--blue);
+	outline: none;
+}
+
+/* Open menu, aligned to the control's right edge */
+#sortStudents::picker(select) {
+	appearance: base-select;
+	box-sizing: border-box;
+	position-area: bottom span-left;
+	position-try: flip-inline;
+	width: 264px;
+	margin: 6px 0 0;
+	padding: 5px;
+
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface);
+	color: var(--ink);
+	font: inherit;
+	box-shadow: 0 4px 10px rgb(0 0 0 / 12%);
+}
+
+#sortStudents option {
+	padding: 12px;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+#sortStudents option[data-description]::after {
+	font-size: 11px;
+	line-height: 14px;
+}
+
+#sortStudents hr {
+	margin: 0;
+	border: 0;
+	border-top: 1px solid var(--line);
+}
