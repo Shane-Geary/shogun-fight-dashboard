@@ -306,6 +306,63 @@ h1 {
 	margin-right: 5px;
 }
 
+.follow-up-section {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	align-self: start;
+	gap: 10px;
+	min-width: 0;
+	padding: 14px 16px;
+
+	border: 1px solid #cfe2f3;
+	border-right: 3px solid var(--blue);
+	border-radius: 8px;
+	background: #edf6fd;
+	text-align: right;
+}
+
+.follow-up-section h3 {
+	margin: 0;
+	color: #2563a6;
+}
+
+.follow-up-section .detail-note {
+	margin: 0;
+	max-width: 100%;
+	color: #526477;
+	overflow-wrap: anywhere;
+}
+
+.follow-up-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 34px;
+	padding: 7px 14px;
+	border: 1px solid var(--blue);
+	border-radius: 6px;
+	background: var(--blue);
+	color: #ffffff;
+	font-size: 11px;
+	font-weight: 700;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+
+.follow-up-button:hover {
+	background: #3279b8;
+	border-color: #3279b8;
+}
+
+.follow-up-button:focus-visible {
+	outline: 3px solid rgba(66, 142, 211, 0.3);
+	outline-offset: 2px;
+}
+
 .empty-state {
 	margin: 0;
 	padding: 32px 16px;
