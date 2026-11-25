@@ -114,6 +114,7 @@ const auditProcessing = (() => {
 					(form) => form.formType === 'cancellation'
 				).length,
 				students,
+				graphs,
 				matchReview
 			}
 		}
