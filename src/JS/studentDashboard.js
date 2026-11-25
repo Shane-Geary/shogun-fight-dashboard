@@ -1,4 +1,5 @@
-import {mockStudents} from './mockData.js'
+// import {mockStudents} from './mockData.js'
+let students = []
 
 const statusLabels = {
 	enrolled: 'Enrolled',
@@ -36,18 +37,27 @@ function formatDate(value) {
 	})
 }
 
+function hasCurrentCancellation(jotform) {
+	return (
+		Boolean(jotform?.cancellationDate) &&
+		jotform.cancellationDate >= (jotform.enrollmentDate || '')
+	)
+}
+
 function renderStudentCard(student) {
 	const personal = student.personal || {}
 	const guardian = personal.guardian
+	const phone = guardian?.phone || personal.studentPhone
+	const family = guardian || personal.household
+	const familyLabel = guardian ? 'Guardian' : 'Household'
 	const martialytics = student.martialytics
 	const jotform = student.jotform || {}
 	const status = Object.hasOwn(statusLabels, student.status)
 		? student.status
 		: 'unknown'
-	const email = guardian?.email || personal.studentEmail
-	const phone = guardian?.phone || personal.studentPhone
+
 	const cancellationDiscrepancy =
-		Boolean(jotform.cancellationDate) &&
+		hasCurrentCancellation(jotform) &&
 		martialytics?.membershipStatus === 'active'
 	const reviewNeeded = Boolean(
 		student.review?.needed || cancellationDiscrepancy
@@ -59,15 +69,15 @@ function renderStudentCard(student) {
 			: '')
 	// Jotform-only trial students get a manual SMS follow-up button.
 	// The phone value prioritizes the guardian's number, if no number is found, it is noted as unavailable.
-const isJotformTrial =
-	student.status === 'trial' && student.source === 'Jotform only'
+	const isJotformTrial =
+		student.status === 'trial' && student.source === 'Jotform only'
 
-const followUpMessage =
-	"Hi there, this is Shogun Fight Co. We wanted to follow up regarding your trial class you recently completed with us. We would love for you to train with us! Please let us know if there's anything holding you back. We're here for you!"
+	const followUpMessage =
+		"Hi there, this is Shogun Fight Co. We wanted to follow up regarding your trial class you recently completed with us. We would love for you to train with us! Please let us know if there's anything holding you back. We're here for you!"
 
-const followUpAction = isJotformTrial
-	? phone
-		? `
+	const followUpAction = isJotformTrial
+		? phone
+			? `
 			<section class="detail-section follow-up-section" aria-label="Follow-up actions">
 				<h3>Follow-up</h3>
 				<a
@@ -80,16 +90,16 @@ const followUpAction = isJotformTrial
 				<p class="detail-note">Phone: ${escapeHTML(phone)}</p>
 			</section>
 		`
-		: `
+			: `
 			<section class="detail-section follow-up-section" aria-label="Follow-up actions">
 				<h3>Follow-up</h3>
 				<p class="detail-note">No phone number available for text follow-up.</p>
 			</section>
 		`
-	: ''
+		: ''
 
-// The Send Text button opens the device's messaging app with the recipient
-// and follow-up message pre-filled for staff to review and send manually.
+	// The Send Text button opens the device's messaging app with the recipient
+	// and follow-up message pre-filled for staff to review and send manually.
 
 	return `
 		<article class="student-card">
@@ -97,6 +107,7 @@ const followUpAction = isJotformTrial
 				<summary class="student-card__summary">
 					<div class="student-card__identity">
 						<h2>${escapeHTML(student.name)}</h2>
+						${reviewNeeded ? '<span class="review-indicator"><span aria-hidden="true">⚠</span> Review needed</span>' : ''}
 						<span class="status-badge status-badge--${status}">${statusLabels[status] || 'Unknown'}</span>
 					</div>
 					<div class="student-card__overview">
@@ -105,14 +116,23 @@ const followUpAction = isJotformTrial
 					</div>
 					<span class="expand-indicator" aria-hidden="true"></span>
 				</summary>
+				${reviewNeeded ? `<p class="review-alert"><span aria-hidden="true">⚠</span> ${escapeHTML(reviewMessage)}</p>` : ''}
 				<div class="student-card__details">
 					<section class="detail-section" aria-label="Personal and contact details">
 						<h3>Personal &amp; contact</h3>
 						<dl>
 							<div><dt>Date of birth</dt><dd>${formatDate(personal.dateOfBirth)}</dd></div>
-							<div><dt>Email</dt><dd>${escapeHTML(email || '—')}</dd></div>
-							<div><dt>Phone</dt><dd>${escapeHTML(phone || '—')}</dd></div>
-							${guardian ? `<div><dt>Guardian</dt><dd>${escapeHTML(guardian.name || '—')}</dd></div>` : ''}
+							<div><dt>Student email</dt><dd>${escapeHTML(personal.studentEmail || '—')}</dd></div>
+							<div><dt>Student phone</dt><dd>${escapeHTML(personal.studentPhone || '—')}</dd></div>
+							<div><dt>Guardian</dt><dd>${escapeHTML(guardian?.name || '—')}</dd></div>
+							${
+								family
+									? `
+										<div><dt>${familyLabel} email</dt><dd>${escapeHTML(family.email || '—')}</dd></div>
+										<div><dt>${familyLabel} phone</dt><dd>${escapeHTML(family.phone || '—')}</dd></div>
+									`
+									: ''
+							}
 						</dl>
 					</section>
 					<section class="detail-section" aria-label="Jotform submission details">
@@ -127,16 +147,15 @@ const followUpAction = isJotformTrial
 					<section class="detail-section" aria-label="Martialytics membership details">
 						<h3>Martialytics</h3>
 						<dl>
-							<div><dt>Membership</dt><dd>${escapeHTML(martialytics?.membershipStatus || 'No record')}</dd></div>
+							<div><dt>Membership</dt><dd>${escapeHTML(martialytics ? martialytics.membershipStatus || 'Unknown' : 'No record')}</dd></div>
 							<div><dt>Start date</dt><dd>${formatDate(martialytics?.startDate)}</dd></div>
-							<div><dt>Program</dt><dd>${escapeHTML(martialytics?.program || student.program || '—')}</dd></div>
+							<div><dt>Program</dt><dd>${escapeHTML(martialytics?.program || '—')}</dd></div>
 							<div><dt>Last attendance</dt><dd>${formatDate(martialytics?.lastAttendance)}</dd></div>
 						</dl>
 					</section>
 					
 					${followUpAction}
 				</div>
-				${reviewNeeded ? `<p class="review-alert"><strong>Review needed</strong> ${escapeHTML(reviewMessage)}</p>` : ''}
 			</details>
 		</article>
 	`
@@ -159,13 +178,13 @@ export function renderStudentCards(container, students) {
 
 const studentsContainer = document.querySelector('#students')
 
-renderStudentCards(
-	studentsContainer,
-	[...mockStudents].sort((a, b) => a.name.localeCompare(b.name))
-)
+// renderStudentCards(
+// 	studentsContainer,
+// 	[...mockStudents].sort((a, b) => a.name.localeCompare(b.name))
+// )
 
-document.querySelector('#studentResultCount').textContent =
-	`STUDENTS · ${mockStudents.length} RESULTS`
+// document.querySelector('#studentResultCount').textContent =
+// `STUDENTS · ${mockStudents.length} RESULTS`
 const studentSearch = document.querySelector('#studentSearch')
 const statusFilter = document.querySelector('#statusFilter')
 const sourceFilter = document.querySelector('#sourceFilter')
@@ -178,7 +197,8 @@ studentSearch.addEventListener('input', () => {
 
 	const searchText = studentSearch.value.toLowerCase().trim()
 
-	const filteredStudents = mockStudents.filter((student) => {
+	const filteredStudents = students.filter((student) => {
+		const family = student.personal?.guardian || student.personal?.household
 		const searchableText = [
 			student.name,
 			student.id,
@@ -186,16 +206,15 @@ studentSearch.addEventListener('input', () => {
 			student.personal?.guardian?.email,
 			student.personal?.guardian?.phone,
 			student.personal?.studentEmail,
-			student.personal?.studentPhone
+			student.personal?.studentPhone,
+			family?.email,
+			family?.phone
 		]
 			.filter(Boolean)
 			.join(' ')
 			.toLowerCase()
 
-		const phoneNumbers = [
-			student.personal?.studentPhone,
-			student.personal?.guardian?.phone
-		]
+		const phoneNumbers = [student.personal?.studentPhone, family?.phone]
 			.filter(Boolean)
 			.map((phone) => phone.replace(/\D/g, ''))
 
@@ -209,17 +228,16 @@ studentSearch.addEventListener('input', () => {
 		const matchesStatus =
 			statusFilter.value === 'all' ||
 			student.status === statusFilter.value ||
-			(statusFilter.value === 'jotform' && student.source === 'Jotform only') ||
+			(statusFilter.value === 'cancelled' &&
+				hasCurrentCancellation(student.jotform)) ||
 			(statusFilter.value === 'both' &&
-				student.source === 'Jotform + Martialytics')
+				student.source === 'Martialytics + Jotform')
 
 		const matchesSource =
 			sourceFilter.value === 'all' ||
 			(sourceFilter.value === 'jotform' && student.source === 'Jotform only') ||
-			(sourceFilter.value === 'martialytics' &&
-				student.source.includes('Martialytics')) ||
 			(sourceFilter.value === 'both' &&
-				student.source === 'Jotform + Martialytics')
+				student.source === 'Martialytics + Jotform')
 
 		return matchesSearch && matchesStatus && matchesSource
 	})
@@ -352,3 +370,52 @@ expandAllBtn.addEventListener('click', () => {
 
 	expandAllBtn.textContent = shouldExpand ? 'Collapse All' : 'Expand All'
 })
+function showMatchReview(messages) {
+	const panel = document.querySelector('#matchReview')
+	panel.hidden = messages.length === 0
+	panel.querySelector('summary').textContent =
+		`Records needing a match (${messages.length})`
+
+	const items = messages.map((message) => {
+		const item = document.createElement('li')
+		item.textContent = message
+		return item
+	})
+
+	panel.querySelector('ul').replaceChildren(...items)
+}
+
+document.addEventListener('audit:clear', () => {
+	showMatchReview([])
+	students = []
+	studentSearch.value = ''
+	studentsContainer.replaceChildren()
+})
+
+async function loadDashboard() {
+	if (!(await auditSession.ready)) return
+
+	const results = auditSession.takeResults()
+
+	if (!results) {
+		location.replace('/Pages/csvUpload.html')
+		return
+	}
+
+	// Temporary checkpoint until T-05 produces matched student records.
+	if (!Array.isArray(results.students)) {
+		document.querySelector('.student-controls').style.display = 'none'
+
+		studentsContainer.textContent =
+			`Martialytics rows: ${results.martialyticsCount} · ` +
+			`Jotform submissions: ${results.jotformCount}. Matching pending.`
+
+		return
+	}
+
+	showMatchReview(results.matchReview || [])
+	students = results.students
+	studentSearch.dispatchEvent(new Event('input'))
+}
+
+loadDashboard()

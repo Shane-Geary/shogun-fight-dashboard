@@ -5,6 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Weekly Dashboard | Shogun Fight Collective</title>
 		<link rel="stylesheet" href="../Styles/studentDashboard.css" />
+
+		<script src="../JS/auditSession.js" defer></script>
+
 		<script src="../JS/studentDashboard.js" type="module" defer></script>
 		<script src="../JS/signOut.js" defer></script>
 		<script>
@@ -93,9 +96,9 @@
 										value="jotform"
 										data-description="Jotform-only records"
 									>
-										Jotform
+										Jotform only
 									</option>
-									<option value="both">Jotform + Martialytics</option>
+									<option value="both">Martialytics + Jotform</option>
 								</optgroup>
 							</select>
 						</label>
@@ -116,9 +119,8 @@
 
 					<select id="sourceFilter" hidden>
 						<option value="all">All Sources</option>
-						<option value="jotform">Jotform</option>
-						<option value="martialytics">Martialytics</option>
-						<option value="both">Both</option>
+						<option value="jotform">Jotform only</option>
+						<option value="both">Martialytics + Jotform</option>
 					</select>
 
 					<div class="student-controls__sort">
@@ -144,6 +146,11 @@
 						</select>
 					</div>
 				</div>
+
+				<details id="matchReview" hidden>
+					<summary></summary>
+					<ul></ul>
+				</details>
 
 				<div id="students" class="student-grid" aria-live="polite"></div>
 			</section>

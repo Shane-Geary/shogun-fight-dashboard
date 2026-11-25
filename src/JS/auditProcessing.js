@@ -67,37 +67,55 @@ const auditProcessing = (() => {
 		}
 	]
 
-	// These are deliberately simulated operations.
-	// They do not fetch Jotform submissions or merge student records.
-	//
-	// Replace each function with real work returning the updated data object.
-	// Future fetch calls should receive the supplied AbortSignal.
-	const simulatedTasks = [
-		async (data) => data, // Upload: the selected File is already in memory.
-		async (data) => data, // Validation: reuse T-03's completed validation.
-		async (data) => data,
-		//! Comment this back in only when ready for data normalization work,
-		//! development that requires fetched data,
-		//! or prod testing
-		// async (data, signal) => {
-		// 	const response = await fetch('/.netlify/functions/jotform', {
-		// 		method: 'GET',
-		// 		signal
-		// 	})
+	async function retrieveJotform(data, signal) {
+		// A retry after a later stage failed can reuse this audit's response.
+		if (Array.isArray(data.jotformSubmissions)) return data
 
-		// 	const result = await response.json()
+		const response = await fetch('/.netlify/functions/jotform', {
+			method: 'GET',
+			cache: 'no-store',
+			signal
+		})
 
-		// 	if (!response.ok) {
-		// 		throw new Error(
-		// 			result.error || 'Unable to retrieve Jotform submissions.'
-		// 		)
-		// 	}
+		if (response.status === 401) {
+			auditSession.end()
+			throw new Error('Your session expired.')
+		}
 
-		// 	console.log('Submissions retrieved:', result.submissions)
+		if (!response.ok) {
+			throw new Error('Unable to retrieve Jotform submissions.')
+		}
 
-		// 	return {...data, jotformSubmissions: result.submissions}
-		// }, // T-04/T-05: retrieve Jotform and match records.
-		async (data) => data // T-06: prepare the dashboard's result data.
+		const {submissions, completeHistory} = await response.json()
+
+		if (!Array.isArray(submissions) || completeHistory !== true) {
+			throw new Error('The complete Jotform history could not be retrieved.')
+		}
+
+		return {...data, jotformSubmissions: submissions}
+	}
+
+	function prepareAuditData(data) {
+		const rows = data.validation.students
+		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
+		const {students, matchReview} = buildAuditStudents(rows, forms, true)
+
+		return {
+			...data,
+			dashboard: {
+				martialyticsCount: rows.length,
+				jotformCount: forms.length,
+				students,
+				matchReview
+			}
+		}
+	}
+
+	const auditTasks = [
+		(data) => data, // The selected File is already in memory.
+		(data) => data, // T-03 already validated and parsed the CSV.
+		retrieveJotform,
+		prepareAuditData
 	]
 
 	let controller = null
@@ -226,12 +244,12 @@ const auditProcessing = (() => {
 		let detail = phase.detail
 
 		// Show the prototype's byte counter only during the simulated upload.
-		if (index === 0 && data.simulated) {
-			const total = (data.file.size / 1024).toFixed(1)
-			const loaded = ((data.file.size * 0.38) / 1024).toFixed(1)
+		// if (index === 0 && data.simulated) {
+		// 	const total = (data.file.size / 1024).toFixed(1)
+		// 	const loaded = ((data.file.size * 0.38) / 1024).toFixed(1)
 
-			detail = loaded + ' KB of ' + total + ' KB'
-		}
+		// 	detail = loaded + ' KB of ' + total + ' KB'
+		// }
 
 		setProgress(phase.percent, detail + ' · Step ' + (index + 1) + '/4')
 
@@ -241,23 +259,21 @@ const auditProcessing = (() => {
 		get('processingNoteMobile').textContent = phase.mobileNote || phase.note
 	}
 
-	async function start(file, validation, tasks = simulatedTasks) {
-		console.log('audit starting...')
-
-		// Prevent duplicate clicks from starting parallel audits.
+	async function start(
+		file,
+		validation,
+		tasks = auditTasks,
+		jotformSubmissions
+	) {
 		if (controller) return
 
-		lastRequest = {file, validation, tasks}
+		lastRequest = {file, validation, tasks, jotformSubmissions}
 
 		const run = new AbortController()
 		controller = run
 
 		let stage = 0
-		let data = {
-			file,
-			validation,
-			simulated: tasks === simulatedTasks
-		}
+		let data = {file, validation, jotformSubmissions}
 
 		upload.hidden = true
 		integration.hidden = true
@@ -294,6 +310,11 @@ const auditProcessing = (() => {
 
 				// A canceled run must never update a newer run's screen.
 				if (controller !== run || run.signal.aborted) return
+
+				// Save the successful Jotform response for this audit's Retry button.
+				if (stage === 2) {
+					lastRequest.jotformSubmissions = data.jotformSubmissions
+				}
 			}
 
 			// Reach 100% only after the final operation and display gate finish.
@@ -311,13 +332,14 @@ const auditProcessing = (() => {
 			setSteps(3, 'complete')
 			setOverview(2)
 
-			// Future results navigation can listen here.
-			// Simulated data is explicitly marked in event.detail.simulated.
-			document.dispatchEvent(new CustomEvent('audit:complete', {detail: data}))
-			console.log('audit complete')
-			setTimeout(() => {
-				window.location.href = '../Pages/studentDashboard.html'
-			}, STEP_DELAY_MS)
+			// Keep the completion screen briefly visible and allow cancellation.
+			await runStep((value) => value, data, run.signal, STEP_DELAY_MS)
+
+			if (!(await auditSession.ready)) return
+			if (controller !== run || run.signal.aborted) return
+
+			auditSession.openDashboard(data.dashboard)
+			lastRequest = null
 		} catch (error) {
 			if (controller !== run || run.signal.aborted) return
 
@@ -385,7 +407,12 @@ const auditProcessing = (() => {
 
 	get('retryProcessing').addEventListener('click', () => {
 		if (lastRequest) {
-			start(lastRequest.file, lastRequest.validation, lastRequest.tasks)
+			start(
+				lastRequest.file,
+				lastRequest.validation,
+				lastRequest.tasks,
+				lastRequest.jotformSubmissions
+			)
 		}
 	})
 

@@ -5,7 +5,7 @@ async function signOut() {
 		})
 		if (!response.ok) throw new Error('Unable to sign out.')
 
-		window.location.replace('../Pages/index.html')
+		auditSession.signedOut()
 	} catch (error) {
 		console.error('Sign-out failed: ', error)
 	}
