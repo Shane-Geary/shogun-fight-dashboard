@@ -841,3 +841,33 @@ h1 {
 	border: 0;
 	border-top: 1px solid var(--line);
 }
+
+.audit-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 24px;
+}
+
+#newAuditButton {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 0 18px;
+	border: 0;
+	border-radius: 6px;
+	background: #2375b8;
+	color: #fff;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+#newAuditButton:hover {
+	background: #1b6099;
+}
+
+#newAuditButton:focus-visible {
+	outline: 2px solid var(--blue);
+	outline-offset: 3px;
+}
