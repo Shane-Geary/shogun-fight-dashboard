@@ -73,6 +73,7 @@ function renderStudentCard(student) {
 				<summary class="student-card__summary">
 					<div class="student-card__identity">
 						<h2>${escapeHTML(student.name)}</h2>
+						${reviewNeeded ? '<span class="review-indicator"><span aria-hidden="true">⚠</span> Review needed</span>' : ''}
 						<span class="status-badge status-badge--${status}">${statusLabels[status] || 'Unknown'}</span>
 					</div>
 					<div class="student-card__overview">
@@ -81,7 +82,7 @@ function renderStudentCard(student) {
 					</div>
 					<span class="expand-indicator" aria-hidden="true"></span>
 				</summary>
-				${reviewNeeded ? '<span class="review-indicator"><span aria-hidden="true">⚠</span> Review needed</span>' : ''}
+				${reviewNeeded ? `<p class="review-alert"><span aria-hidden="true">⚠</span> ${escapeHTML(reviewMessage)}</p>` : ''}
 				<div class="student-card__details">
 					<section class="detail-section" aria-label="Personal and contact details">
 						<h3>Personal &amp; contact</h3>
@@ -119,7 +120,6 @@ function renderStudentCard(student) {
 						</dl>
 					</section>
 				</div>
-				${reviewNeeded ? `<p class="review-alert"><strong>Review needed</strong> ${escapeHTML(reviewMessage)}</p>` : ''}
 			</details>
 		</article>
 	`
