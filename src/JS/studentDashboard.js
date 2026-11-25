@@ -1,4 +1,5 @@
 // import {mockStudents} from './mockData.js'
+import {enableGraphView, lastCompleteWeek} from './auditGraphs.js'
 let students = []
 
 const statusLabels = {
@@ -461,6 +462,9 @@ async function loadDashboard() {
 	showMatchReview(results.matchReview || [])
 	students = results.students
 	renderAuditSummary(students, results.cancellationCount)
+	if (results.graphs) {
+		enableGraphView(lastCompleteWeek(results.graphs))
+	}
 	studentSearch.dispatchEvent(new Event('input'))
 }
 

@@ -8,6 +8,11 @@
 
 		<script src="../JS/auditSession.js" defer></script>
 
+		<script
+			src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"
+			defer
+		></script>
+
 		<script src="../JS/studentDashboard.js" type="module" defer></script>
 		<script src="../JS/signOut.js" defer></script>
 		<script>
@@ -136,6 +141,23 @@
 
 						<button type="button" id="expandAllBtn">Expand All</button>
 
+						<div id="userSwitchSlot">
+							<div
+								id="viewToggle"
+								class="view-toggle"
+								role="group"
+								aria-label="Dashboard view"
+								hidden
+							>
+								<button type="button" data-view="users" aria-pressed="true">
+									Users
+								</button>
+								<button type="button" data-view="graphs" aria-pressed="false">
+									Graphs
+								</button>
+							</div>
+						</div>
+
 						<label for="sortStudents" id="sortStudentsLabel">Name A–Z</label>
 						<select id="sortStudents">
 							<button type="button">Sort</button>
@@ -161,6 +183,47 @@
 				</details>
 
 				<div id="students" class="student-grid" aria-live="polite"></div>
+			</section>
+			<section id="graphView" aria-label="Weekly audit graphs" hidden>
+				<p class="graph-status">
+					<span aria-hidden="true">✓</span> Processing complete · Weekly graphs
+					ready
+				</p>
+
+				<div class="graph-toolbar">
+					<div id="graphSwitchSlot"></div>
+					<div>
+						<strong id="graphDates"></strong>
+						<small>Last complete audit week</small>
+					</div>
+				</div>
+
+				<div class="graph-grid">
+					<article class="graph-card">
+						<h2>Weekly Attendance</h2>
+						<p>Recorded check-ins · Monday–Saturday</p>
+						<div class="graph-plot">
+							<canvas id="attendanceChart" role="img"></canvas>
+						</div>
+						<dl class="graph-stats" id="attendanceStats"></dl>
+						<small id="attendanceNote"></small>
+					</article>
+
+					<article class="graph-card">
+						<h2>Membership Growth</h2>
+						<p>Active accounts and weekly account changes</p>
+						<div class="graph-plot">
+							<canvas id="membershipChart" role="img"></canvas>
+						</div>
+						<dl class="graph-stats" id="membershipStats"></dl>
+						<small id="membershipNote"></small>
+					</article>
+				</div>
+
+				<p class="graph-note">
+					Graphs summarize the full audit dataset. User-list filters do not
+					apply.
+				</p>
 			</section>
 			<footer class="audit-actions">
 				<button type="button" id="newAuditButton">

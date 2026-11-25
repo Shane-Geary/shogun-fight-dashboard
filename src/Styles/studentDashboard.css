@@ -250,6 +250,185 @@ h1 {
 	}
 }
 
+/* T-08: Users/Graphs toggle and weekly audit graphs */
+
+.view-toggle {
+	display: inline-flex;
+	padding: 3px;
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	background: var(--surface);
+}
+
+.view-toggle[hidden],
+#graphView[hidden] {
+	display: none;
+}
+
+.view-toggle button {
+	min-width: 64px;
+	min-height: 32px;
+	padding: 0 12px;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: #596575;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.view-toggle button[aria-pressed='true'] {
+	background: #2478bb;
+	color: #fff;
+}
+
+.view-toggle button:focus-visible {
+	outline: 2px solid var(--ink);
+	outline-offset: 2px;
+}
+
+.graph-status {
+	margin: 0 0 18px;
+	color: #2579b8;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.graph-toolbar,
+.graph-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 20px;
+}
+
+.graph-toolbar {
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.graph-toolbar > div:last-child {
+	justify-self: center;
+}
+
+.graph-toolbar small,
+.graph-card small {
+	display: block;
+	margin-top: 4px;
+	color: #596575;
+	font-size: 12px;
+	line-height: 1.45;
+}
+
+.graph-card {
+	min-width: 0;
+	padding: 22px;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface);
+}
+
+.graph-card h2 {
+	margin: 0;
+	font-size: 20px;
+}
+
+.graph-card > p,
+.graph-note {
+	color: #596575;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.graph-plot {
+	position: relative;
+	display: grid;
+	align-items: center;
+	height: clamp(190px, 21vw, 270px);
+	margin: 14px 0 20px;
+	color: #596575;
+	font-size: 13px;
+}
+
+.graph-stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+	margin: 0 0 16px;
+}
+
+.graph-stats > div {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.graph-stats dt {
+	color: #596575;
+	font-size: 12px;
+}
+
+.graph-stats dd {
+	order: -1;
+	margin: 0;
+	font-size: 24px;
+	font-weight: 700;
+}
+
+.graph-note {
+	margin: 20px 0 0;
+}
+
+@media (max-width: 720px) {
+	.student-controls__sort {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto auto;
+	}
+
+	#expandAllBtn {
+		grid-area: 1 / 1;
+		justify-self: start;
+	}
+
+	#userSwitchSlot {
+		grid-area: 1 / 2 / 2 / 4;
+		justify-self: end;
+	}
+
+	#studentResultCount,
+	#sortStudentsLabel,
+	#sortStudents {
+		grid-row: 2;
+	}
+
+	.graph-status {
+		display: none;
+	}
+
+	.graph-grid,
+	.graph-toolbar {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 12px;
+	}
+
+	.graph-toolbar > div:last-child {
+		justify-self: start;
+	}
+
+	.graph-card {
+		padding: 16px;
+	}
+
+	.graph-plot {
+		height: 205px;
+	}
+
+	.graph-stats dd {
+		font-size: 21px;
+	}
+}
+
 .student-grid {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);

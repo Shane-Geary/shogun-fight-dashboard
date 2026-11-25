@@ -164,6 +164,30 @@ function pickMatch(person, candidates) {
 	return {found, uncertain: !found && (conflict || hits.length > 0)}
 }
 
+function graphRosterTotals(roster) {
+	const joinsByDate = {}
+	let undated = 0
+	let knownStatus = 0
+	let active = 0
+
+	for (const {info} of roster) {
+		if (info.membershipStatus) knownStatus++
+		if (info.membershipStatus === 'active') active++
+
+		if (info.startDate) {
+			joinsByDate[info.startDate] = (joinsByDate[info.startDate] || 0) + 1
+		} else {
+			undated++
+		}
+	}
+
+	return {
+		joinsByDate: undated < roster.length ? joinsByDate : null,
+		undated,
+		activeAtExport: knownStatus ? active : null
+	}
+}
+
 function buildAuditStudents(rows, forms, completeHistory = false) {
 	const roster = rows.map(rosterPerson)
 	const groups = []
@@ -423,5 +447,5 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 		})
 	}
 
-	return {students, matchReview}
+	return {students, matchReview, graphs: graphRosterTotals(roster)}
 }

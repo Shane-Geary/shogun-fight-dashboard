@@ -98,7 +98,11 @@ const auditProcessing = (() => {
 	function prepareAuditData(data) {
 		const rows = data.validation.students
 		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
-		const {students, matchReview} = buildAuditStudents(rows, forms, true)
+		const {students, matchReview, graphs} = buildAuditStudents(
+			rows,
+			forms,
+			true
+		)
 
 		// This also returns the counts needed for the audit summaries UI elements
 		return {
