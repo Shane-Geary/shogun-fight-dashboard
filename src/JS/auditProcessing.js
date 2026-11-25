@@ -100,11 +100,15 @@ const auditProcessing = (() => {
 		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
 		const {students, matchReview} = buildAuditStudents(rows, forms, true)
 
+		// This also returns the counts needed for the audit summaries UI elements
 		return {
 			...data,
 			dashboard: {
 				martialyticsCount: rows.length,
 				jotformCount: forms.length,
+				cancellationCount: forms.filter(
+					(form) => form.formType === 'cancellation'
+				).length,
 				students,
 				matchReview
 			}
