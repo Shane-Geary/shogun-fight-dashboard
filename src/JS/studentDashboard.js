@@ -47,6 +47,7 @@ function hasCurrentCancellation(jotform) {
 function renderStudentCard(student) {
 	const personal = student.personal || {}
 	const guardian = personal.guardian
+	const phone = guardian?.phone || personal.studentPhone
 	const family = guardian || personal.household
 	const familyLabel = guardian ? 'Guardian' : 'Household'
 	const martialytics = student.martialytics
@@ -68,15 +69,15 @@ function renderStudentCard(student) {
 			: '')
 	// Jotform-only trial students get a manual SMS follow-up button.
 	// The phone value prioritizes the guardian's number, if no number is found, it is noted as unavailable.
-const isJotformTrial =
-	student.status === 'trial' && student.source === 'Jotform only'
+	const isJotformTrial =
+		student.status === 'trial' && student.source === 'Jotform only'
 
-const followUpMessage =
-	"Hi there, this is Shogun Fight Co. We wanted to follow up regarding your trial class you recently completed with us. We would love for you to train with us! Please let us know if there's anything holding you back. We're here for you!"
+	const followUpMessage =
+		"Hi there, this is Shogun Fight Co. We wanted to follow up regarding your trial class you recently completed with us. We would love for you to train with us! Please let us know if there's anything holding you back. We're here for you!"
 
-const followUpAction = isJotformTrial
-	? phone
-		? `
+	const followUpAction = isJotformTrial
+		? phone
+			? `
 			<section class="detail-section follow-up-section" aria-label="Follow-up actions">
 				<h3>Follow-up</h3>
 				<a
@@ -89,16 +90,16 @@ const followUpAction = isJotformTrial
 				<p class="detail-note">Phone: ${escapeHTML(phone)}</p>
 			</section>
 		`
-		: `
+			: `
 			<section class="detail-section follow-up-section" aria-label="Follow-up actions">
 				<h3>Follow-up</h3>
 				<p class="detail-note">No phone number available for text follow-up.</p>
 			</section>
 		`
-	: ''
+		: ''
 
-// The Send Text button opens the device's messaging app with the recipient
-// and follow-up message pre-filled for staff to review and send manually.
+	// The Send Text button opens the device's messaging app with the recipient
+	// and follow-up message pre-filled for staff to review and send manually.
 
 	return `
 		<article class="student-card">
