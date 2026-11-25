@@ -243,14 +243,6 @@ const auditProcessing = (() => {
 		// These are staged UI estimates, not measured network progress.
 		let detail = phase.detail
 
-		// Show the prototype's byte counter only during the simulated upload.
-		// if (index === 0 && data.simulated) {
-		// 	const total = (data.file.size / 1024).toFixed(1)
-		// 	const loaded = ((data.file.size * 0.38) / 1024).toFixed(1)
-
-		// 	detail = loaded + ' KB of ' + total + ' KB'
-		// }
-
 		setProgress(phase.percent, detail + ' · Step ' + (index + 1) + '/4')
 
 		get('processingNote').classList.toggle('is-merging', index === 2)

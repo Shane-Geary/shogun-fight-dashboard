@@ -392,6 +392,10 @@ document.addEventListener('audit:clear', () => {
 	studentsContainer.replaceChildren()
 })
 
+document.querySelector('#newAuditButton').addEventListener('click', () => {
+	location.replace('/Pages/csvUpload.html')
+})
+
 async function loadDashboard() {
 	if (!(await auditSession.ready)) return
 
