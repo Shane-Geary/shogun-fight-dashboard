@@ -37,6 +37,13 @@ function formatDate(value) {
 	})
 }
 
+function hasCurrentCancellation(jotform) {
+	return (
+		Boolean(jotform?.cancellationDate) &&
+		jotform.cancellationDate >= (jotform.enrollmentDate || '')
+	)
+}
+
 function renderStudentCard(student) {
 	const personal = student.personal || {}
 	const guardian = personal.guardian
@@ -49,8 +56,7 @@ function renderStudentCard(student) {
 		: 'unknown'
 
 	const cancellationDiscrepancy =
-		Boolean(jotform.cancellationDate) &&
-		jotform.cancellationDate >= (jotform.enrollmentDate || '') &&
+		hasCurrentCancellation(jotform) &&
 		martialytics?.membershipStatus === 'active'
 	const reviewNeeded = Boolean(
 		student.review?.needed || cancellationDiscrepancy
@@ -75,6 +81,7 @@ function renderStudentCard(student) {
 					</div>
 					<span class="expand-indicator" aria-hidden="true"></span>
 				</summary>
+				${reviewNeeded ? '<span class="review-indicator"><span aria-hidden="true">⚠</span> Review needed</span>' : ''}
 				<div class="student-card__details">
 					<section class="detail-section" aria-label="Personal and contact details">
 						<h3>Personal &amp; contact</h3>
@@ -185,7 +192,8 @@ studentSearch.addEventListener('input', () => {
 		const matchesStatus =
 			statusFilter.value === 'all' ||
 			student.status === statusFilter.value ||
-			(statusFilter.value === 'jotform' && student.source === 'Jotform only') ||
+			(statusFilter.value === 'cancelled' &&
+				hasCurrentCancellation(student.jotform)) ||
 			(statusFilter.value === 'both' &&
 				student.source === 'Martialytics + Jotform')
 

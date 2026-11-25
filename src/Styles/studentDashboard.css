@@ -159,11 +159,11 @@ h1 {
 	box-shadow: 0 2px 6px rgba(28, 39, 50, 0.04);
 }
 
-.student-card details>summary {
+.student-card details > summary {
 	list-style: none;
 }
 
-.student-card details>summary::-webkit-details-marker {
+.student-card details > summary::-webkit-details-marker {
 	display: none;
 }
 
@@ -268,7 +268,7 @@ h1 {
 	margin: 0;
 }
 
-.detail-section dl>div {
+.detail-section dl > div {
 	display: grid;
 	grid-template-columns: minmax(105px, 0.8fr) minmax(0, 1.2fr);
 	gap: 12px;
@@ -290,6 +290,12 @@ h1 {
 	color: var(--muted);
 	font-size: 11px;
 	line-height: 1.5;
+}
+
+.review-indicator {
+	color: #8d5c18;
+	font-size: 11px;
+	font-weight: 700;
 }
 
 .review-alert {
@@ -329,7 +335,6 @@ h1 {
 }
 
 @media (max-width: 580px) {
-
 	/* Mobile dashboard header */
 	.dashboard-header-inner {
 		justify-content: space-between;

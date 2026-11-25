@@ -170,10 +170,15 @@ function buildAuditStudents(rows, forms, completeHistory = false) {
 
 	const events = forms.flatMap((form) =>
 		form.people.map((person, slot) => {
+			const participantForm =
+				form.formType === 'release' || form.formType === 'enrollment'
 			const youth =
 				person.dob && form.formDate
 					? isYouth(person.dob, form.formDate)
-					: Boolean(person.guardian || person.familyEmail || person.familyPhone)
+					: Boolean(
+							person.guardian ||
+							(participantForm && (person.familyEmail || person.familyPhone))
+						)
 
 			const identity = {...person, youth}
 

@@ -10,6 +10,8 @@ function normalizeJotformSubmission(submission) {
 	const enrollment = formType === 'enrollment'
 	const release = formType === 'release'
 	const usesParticipantFields = release || enrollment
+	const adjustment = formType === 'adjustment'
+	const knownForm = usesParticipantFields || adjustment
 	const answers = submission.answers || {}
 	const byId = (id) => answers[id]?.answer
 
@@ -42,30 +44,44 @@ function normalizeJotformSubmission(submission) {
 		)
 	}
 
-	const action = field(
-		'request type',
-		'type of request',
-		'membership adjustment',
-		'adjustment type'
-	)
-	const cancelDate = date(
-		field('cancellation date', 'cancel date', 'requested cancellation date')
-	)
-	const resumeDate = date(field('resume date', 'return date'))
-
-	if (formType === 'adjustment') {
-		const cancellation = action
-			? /^(cancel|cancellation|cancel membership|membership cancellation)$/i.test(
-					String(action).trim()
+	if (adjustment) {
+		const action = folded(
+			byId(36) ||
+				field(
+					'request type',
+					'type of request',
+					'membership adjustment',
+					'adjustment type'
 				)
-			: cancelDate && !resumeDate
+		)
+		const stopDate = date(
+			byId(38) ||
+				field('cancellation date', 'cancel date', 'requested cancellation date')
+		)
+		const resumeDate = date(byId(39) || field('resume date', 'return date'))
 
-		if (cancellation) formType = 'cancellation'
+		// The form combines pauses and cancellations. A resume date means a pause.
+		const openEndedStop =
+			(!action || action === 'pause/cancel membership') &&
+			stopDate &&
+			!resumeDate
+		const explicitCancellation = [
+			'cancel',
+			'cancellation',
+			'cancel membership',
+			'membership cancellation'
+		].includes(action)
+
+		if (openEndedStop || explicitCancellation) formType = 'cancellation'
 	}
+
+	const adjustmentPayer = adjustment ? name(byId(5)) : ''
+	const adjustmentStudent = adjustment ? name(byId(30)) : ''
 
 	const student = release
 		? name(byId(5))
-		: name(
+		: adjustmentStudent ||
+			name(
 				field(
 					'student name',
 					"student's name",
@@ -74,7 +90,10 @@ function normalizeJotformSubmission(submission) {
 					'student full name'
 				)
 			)
-	const listed = name(field('name', 'full name'))
+
+	const listed = adjustmentPayer || name(field('name', 'full name'))
+	const otherPayer =
+		adjustmentPayer && student && !same(adjustmentPayer, student)
 	const guardian = name(
 		usesParticipantFields
 			? byId(9)
@@ -85,24 +104,28 @@ function normalizeJotformSubmission(submission) {
 					'parent/guardian'
 				)
 	)
-	const emailValue = usesParticipantFields
-		? byId(7)
-		: field('email', 'email address', 'contact email')
-	const phoneValue = usesParticipantFields
-		? byId(8)
-		: field('phone', 'phone number', 'contact phone')
+	const emailValue =
+		(knownForm ? byId(7) : null) ??
+		field('email', 'email address', 'contact email')
+	const phoneValue =
+		(knownForm ? byId(8) : null) ??
+		field('phone', 'phone number', 'contact phone')
 	const email = typeof emailValue === 'string' ? emailValue.trim() : ''
 	const phone =
 		typeof phoneValue === 'string' ? phoneValue : phoneValue?.full || ''
 
 	const primary = {
-		name: student || (!enrollment && !same(listed, guardian) ? listed : ''),
+		name:
+			student ||
+			adjustmentPayer ||
+			(!enrollment && !same(listed, guardian) ? listed : ''),
 		listed,
-		explicitStudent: Boolean(student),
+		explicitStudent: Boolean(student || adjustmentPayer),
 		payer: enrollment ? name(byId(5)) : '',
 		guardian,
-		email,
-		phone,
+		email: otherPayer ? '' : email,
+		phone: otherPayer ? '' : phone,
+		...(otherPayer ? {familyEmail: email, familyPhone: phone} : {}),
 		dob: date(
 			usesParticipantFields
 				? byId(26)
@@ -147,7 +170,7 @@ function normalizeJotformSubmission(submission) {
 		people,
 		formDate:
 			date(
-				usesParticipantFields ? byId(14) : field("today's date", 'date signed')
+				(knownForm ? byId(14) : null) ?? field("today's date", 'date signed')
 			) || auditDate(submission.created_at),
 		program: enrollment ? byId(66) : field('program selection', 'program')
 	}
