@@ -114,7 +114,7 @@ const auditProcessing = (() => {
 					(form) => form.formType === 'cancellation'
 				).length,
 				students,
-				graphs,
+				graphs: {...graphs, ...data.graphReports},
 				matchReview
 			}
 		}
@@ -274,7 +274,12 @@ const auditProcessing = (() => {
 		controller = run
 
 		let stage = 0
-		let data = {file, validation, jotformSubmissions}
+		let data = {
+			file,
+			validation,
+			jotformSubmissions,
+			graphReports: metricsUpload.reports
+		}
 
 		upload.hidden = true
 		integration.hidden = true

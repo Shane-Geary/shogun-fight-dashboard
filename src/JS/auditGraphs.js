@@ -3,6 +3,7 @@ const palette = {
 	Youth: '#19618b',
 	Active: '#3298eb',
 	New: '#20856d',
+	'Roster joins': '#20856d',
 	Deactivated: '#c44b55'
 }
 
@@ -25,11 +26,26 @@ export function lastCompleteWeek(source, now = new Date()) {
 		return iso
 	})
 
+	// Use the report's account creation dates when supplied. Older handoffs
+	// and demographics-only audits can still show the roster's join dates.
+	const growth = source.growth
+	const joins = growth?.createdByDate ?? source.joinsByDate
+	const checkIns = source.attendance
+	const hasWeekData = checkIns && dates.some((day) => checkIns[day])
+
 	return {
 		dates,
-		joined:
-			source.joinsByDate && dates.map((date) => source.joinsByDate[date] || 0),
-		undated: source.undated,
+		attendance: hasWeekData
+			? {
+					adult: dates.map((day) => checkIns[day]?.adult ?? 0),
+					youth: dates.map((day) => checkIns[day]?.youth ?? 0)
+				}
+			: null,
+		hasAttendanceReport: Boolean(checkIns),
+		joined: joins && dates.map((day) => joins[day] || 0),
+		hasGrowthReport: Boolean(growth),
+		lastActiveCount: growth?.lastActiveCount,
+		undated: growth ? 0 : source.undated,
 		activeAtExport: source.activeAtExport
 	}
 }
@@ -52,7 +68,7 @@ export function enableGraphView(week) {
 	const labels = dates.map((date) => weekday.format(date))
 
 	const sum = (values) => values.reduce((total, value) => total + value, 0)
-	const average = (values) => (sum(values) / values.length).toFixed(1)
+	const average = (values) => (sum(values) / values.length).toFixed(2)
 	const metric = (label, value) =>
 		`<div><dt>${label}</dt><dd>${value ?? '—'}</dd></div>`
 
@@ -69,7 +85,9 @@ export function enableGraphView(week) {
 		if (!available.length || !window.Chart) {
 			canvas.parentElement.textContent = available.length
 				? 'The chart library could not load.'
-				: 'Daily check-in history is unavailable in this export.'
+				: week.hasAttendanceReport
+					? 'No check-ins in the uploaded report for this audit week.'
+					: 'Choose an attendance CSV on the upload page to see this graph.'
 			return
 		}
 
@@ -175,20 +193,23 @@ export function enableGraphView(week) {
 				week.activeByDay ? 'Active at week end' : 'Marked active in export',
 				week.activeByDay?.at(-1) ?? week.activeAtExport
 			) +
-			metric('Recorded new students', week.joined && sum(week.joined)) +
-			metric('Churn', week.deactivated && sum(week.deactivated))
+			metric(
+				week.hasGrowthReport ? 'New students' : 'Roster joins',
+				week.joined && sum(week.joined)
+			) +
+			metric('Churn (full export)', week.lastActiveCount)
 
 		get('attendanceNote').textContent = totals
 			? `${sum(totals)} check-ins across ${dates.length} days.`
-			: 'Attendance averages require dated class check-ins.'
+			: 'Daily averages use the six audit days, Monday through Saturday.'
 
 		get('membershipNote').textContent = [
 			week.undated
 				? `${week.undated} roster records lack a usable join date.`
 				: '',
-			week.deactivated
-				? ''
-				: 'Deactivation history is unavailable in this export.'
+			week.hasGrowthReport
+				? 'Churn counts the Last Active rows in the full growth export. Daily deactivation dates are unavailable.'
+				: 'Upload a growth CSV for new accounts and the Last Active count.'
 		]
 			.filter(Boolean)
 			.join(' ')
@@ -201,13 +222,15 @@ export function enableGraphView(week) {
 			],
 			true
 		)
-
 		if (week.joined || week.activeByDay || week.deactivated) {
 			draw(
 				'membershipChart',
 				[
 					{label: 'Active', values: week.activeByDay},
-					{label: 'New', values: week.joined},
+					{
+						label: week.hasGrowthReport ? 'New' : 'Roster joins',
+						values: week.joined
+					},
 					{label: 'Deactivated', values: week.deactivated}
 				],
 				false
@@ -250,7 +273,6 @@ export function enableGraphView(week) {
 			plots.forEach((chart) => chart.resize())
 		}
 	}
-
 	toggle.hidden = false
 	toggle.addEventListener('click', switchView)
 

@@ -20,6 +20,7 @@
 		<script src="../JS/studentMatcher.js" defer></script>
 		<script src="../JS/jotformParser.js" defer></script>
 		<script src="../JS/auditProcessing.js" defer></script>
+		<script src="../JS/metricsUpload.js" defer></script>
 		<script src="../JS/csvUpload.js" defer></script>
 		<script src="../JS/signOut.js" defer></script>
 	</head>
@@ -131,7 +132,7 @@
 								Upload Martialytics
 								<span class="upload-title-ending">Export Here!</span>
 							</h2>
-							<p>CSV export · Up to 10 MB</p>
+							<p>Demographics CSV · Up to 10 MB</p>
 						</div>
 
 						<span class="file-type">MARTIALYTICS CSV</span>
@@ -181,6 +182,35 @@
 					<p id="uploadStatus" role="status" aria-live="polite">
 						Choose a report to begin your audit.
 					</p>
+
+					<div class="metrics-upload">
+						<p id="metricsHelp">
+							Optional attendance and growth CSVs for the audit graphs.
+						</p>
+
+						<button
+							id="chooseMetrics"
+							class="choose-file-button"
+							type="button"
+							aria-describedby="metricsHelp"
+						>
+							Choose graph reports
+						</button>
+
+						<input
+							id="metricsFiles"
+							type="file"
+							accept=".csv,text/csv"
+							multiple
+							hidden
+						/>
+
+						<p id="metricsStatus" role="status"></p>
+
+						<button id="clearMetrics" type="button" hidden>
+							Clear graph reports
+						</button>
+					</div>
 
 					<div class="audit-buttons">
 						<button type="button" id="startAuditButton" disabled>
