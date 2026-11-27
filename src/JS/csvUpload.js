@@ -21,6 +21,12 @@ let currentValidation = null
 // Identifies the latest selection so older async results can be ignored.
 let fileSelectionNumber = 0
 
+const metricsUpload = createMetricsUpload(MAX_FILE_SIZE, updateStartButton)
+
+function updateStartButton() {
+	startAuditButton.disabled = !currentValidation || metricsUpload.busy
+}
+
 // Format the selected file's size in KB
 function formatFileSize(bytes) {
 	return (bytes / 1024).toFixed(1) + ' KB'
@@ -122,7 +128,7 @@ async function validateCSV() {
 		const issue = result.blockingErrors[0] || result.errors[0]
 
 		// Preserve the existing rule: only blocking errors prevent auditing.
-		startAuditButton.disabled = hasBlockingIssues
+		updateStartButton()
 		fileStatus.hidden = hasBlockingIssues
 
 		if (issue) {
@@ -182,7 +188,7 @@ dropZone.addEventListener('drop', (event) => {
 
 // Start T-11 only after automatic CSV validation has succeeded.
 startAuditButton.addEventListener('click', () => {
-	if (currentFile && currentValidation) {
+	if (currentFile && currentValidation && !metricsUpload.busy) {
 		auditProcessing.start(currentFile, currentValidation)
 	}
 })

@@ -1,4 +1,5 @@
 // import {mockStudents} from './mockData.js'
+import {enableGraphView, lastCompleteWeek} from './auditGraphs.js'
 let students = []
 
 const statusLabels = {
@@ -385,7 +386,48 @@ function showMatchReview(messages) {
 	panel.querySelector('ul').replaceChildren(...items)
 }
 
+const auditSummary = document.querySelector('#auditSummary')
+
+function renderAuditSummary(students, cancellationCount) {
+	const people = students.length
+	const matched = students.filter(
+		(student) => student.source === 'Martialytics + Jotform'
+	).length
+	const jotformOnly = students.filter(
+		(student) => student.source === 'Jotform only'
+	).length
+
+	const metrics = [
+		['People', people, 'One record per person'],
+		['Jotform + Martialytics', matched, 'Matched across both sources'],
+		['Jotform only', jotformOnly, 'No matched Martialytics record'],
+		['Cancellations', cancellationCount, 'Cancellation submissions']
+	]
+
+	const cards = metrics.map(([label, count, detail]) => {
+		const value = Number.isInteger(count) ? String(count).padStart(2, '0') : '—'
+
+		return `
+			<div>
+				<dt>${label}</dt>
+				<dd class="audit-summary__count">${value}</dd>
+				<dd class="audit-summary__detail">${detail}</dd>
+			</div>`
+	})
+
+	auditSummary.innerHTML = `
+		<p class="audit-summary__status">
+			<span aria-hidden="true">✓</span>
+			Processing complete · ${people} ${people === 1 ? 'person' : 'people'} consolidated
+		</p>
+		<dl class="audit-summary__metrics">${cards.join('')}</dl>`
+
+	auditSummary.hidden = false
+}
+
 document.addEventListener('audit:clear', () => {
+	auditSummary.hidden = true
+	auditSummary.replaceChildren()
 	showMatchReview([])
 	students = []
 	studentSearch.value = ''
@@ -419,6 +461,10 @@ async function loadDashboard() {
 
 	showMatchReview(results.matchReview || [])
 	students = results.students
+	renderAuditSummary(students, results.cancellationCount)
+	if (results.graphs) {
+		enableGraphView(lastCompleteWeek(results.graphs))
+	}
 	studentSearch.dispatchEvent(new Event('input'))
 }
 

@@ -98,14 +98,23 @@ const auditProcessing = (() => {
 	function prepareAuditData(data) {
 		const rows = data.validation.students
 		const forms = data.jotformSubmissions.map(normalizeJotformSubmission)
-		const {students, matchReview} = buildAuditStudents(rows, forms, true)
+		const {students, matchReview, graphs} = buildAuditStudents(
+			rows,
+			forms,
+			true
+		)
 
+		// This also returns the counts needed for the audit summaries UI elements
 		return {
 			...data,
 			dashboard: {
 				martialyticsCount: rows.length,
 				jotformCount: forms.length,
+				cancellationCount: forms.filter(
+					(form) => form.formType === 'cancellation'
+				).length,
 				students,
+				graphs: {...graphs, ...data.graphReports},
 				matchReview
 			}
 		}
@@ -265,7 +274,12 @@ const auditProcessing = (() => {
 		controller = run
 
 		let stage = 0
-		let data = {file, validation, jotformSubmissions}
+		let data = {
+			file,
+			validation,
+			jotformSubmissions,
+			graphReports: metricsUpload.reports
+		}
 
 		upload.hidden = true
 		integration.hidden = true
