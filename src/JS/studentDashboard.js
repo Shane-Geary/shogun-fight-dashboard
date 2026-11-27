@@ -231,6 +231,7 @@ studentSearch.addEventListener('input', () => {
 			student.status === statusFilter.value ||
 			(statusFilter.value === 'cancelled' &&
 				hasCurrentCancellation(student.jotform)) ||
+			(statusFilter.value === 'jotform' && student.source === 'Jotform only') ||
 			(statusFilter.value === 'both' &&
 				student.source === 'Martialytics + Jotform')
 
