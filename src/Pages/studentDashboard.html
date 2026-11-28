@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../Styles/studentDashboard.css" />
 
 		<script src="../JS/auditSession.js" defer></script>
+		<script src="../JS/auditExport.js" type="module"></script>
 
 		<script
 			src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"
@@ -135,7 +136,14 @@
 						<option value="jotform">Jotform only</option>
 						<option value="both">Martialytics + Jotform</option>
 					</select>
+				</div>
 
+				<details id="matchReview" hidden>
+					<summary></summary>
+					<ul></ul>
+				</details>
+
+				<div class="student-table">
 					<div class="student-controls__sort">
 						<span id="studentResultCount">STUDENTS · 0 RESULTS</span>
 
@@ -174,14 +182,18 @@
 							</option>
 						</select>
 					</div>
+
+					<div class="student-table__head" aria-hidden="true">
+						<span>Student / prospect</span>
+						<span>Record status / source</span>
+						<span>Program</span>
+						<span>Jotform submissions</span>
+						<span>Martialytics</span>
+						<span>Details</span>
+					</div>
+
+					<div id="students" class="student-grid" aria-live="polite"></div>
 				</div>
-
-				<details id="matchReview" hidden>
-					<summary></summary>
-					<ul></ul>
-				</details>
-
-				<div id="students" class="student-grid" aria-live="polite"></div>
 			</section>
 			<section id="graphView" aria-label="Weekly audit graphs" hidden>
 				<p class="graph-status">
@@ -224,7 +236,44 @@
 					apply.
 				</p>
 			</section>
+			<section
+				id="exportNotice"
+				class="export-notice"
+				aria-label="PDF export notice"
+				hidden
+			>
+				<div>
+					<p id="exportNoticeText" role="status" aria-live="polite"></p>
+					<a id="exportDownloadLink" target="_blank" rel="noopener" hidden>
+						Download PDF
+					</a>
+				</div>
+
+				<button
+					type="button"
+					id="dismissExportNotice"
+					aria-label="Dismiss PDF export notice"
+				>
+					×
+				</button>
+			</section>
+
 			<footer class="audit-actions">
+				<button type="button" id="exportAuditButton">
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5" />
+					</svg>
+					<span>Save Audit as PDF</span>
+				</button>
+
 				<button type="button" id="newAuditButton">
 					<span aria-hidden="true">+</span> New Audit
 				</button>

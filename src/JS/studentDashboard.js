@@ -52,6 +52,10 @@ function renderStudentCard(student) {
 	const family = guardian || personal.household
 	const familyLabel = guardian ? 'Guardian' : 'Household'
 	const martialytics = student.martialytics
+	const rawMembership = martialytics?.membershipStatus || 'unknown'
+	const membershipLabel = martialytics
+		? rawMembership.charAt(0).toUpperCase() + rawMembership.slice(1)
+		: '—'
 	const jotform = student.jotform || {}
 	const status = Object.hasOwn(statusLabels, student.status)
 		? student.status
@@ -108,54 +112,191 @@ function renderStudentCard(student) {
 				<summary class="student-card__summary">
 					<div class="student-card__identity">
 						<h2>${escapeHTML(student.name)}</h2>
-						${reviewNeeded ? '<span class="review-indicator"><span aria-hidden="true">⚠</span> Review needed</span>' : ''}
-						<span class="status-badge status-badge--${status}">${statusLabels[status] || 'Unknown'}</span>
+
+						${
+							guardian?.name
+								? `<span class="student-card__subtitle">Guardian: ${escapeHTML(guardian.name)}</span>`
+								: ''
+						}
+
+						${
+							status === 'trial'
+								? '<span class="student-card__subtitle">Prospective · Never enrolled</span>'
+								: ''
+						}
+
+						${
+							reviewNeeded
+								? '<span class="review-indicator"><span aria-hidden="true">⚠</span> Review needed</span>'
+								: ''
+						}
 					</div>
-					<div class="student-card__overview">
-						<span>${escapeHTML(student.program || 'Program not listed')}</span>
-						<span>${escapeHTML(student.source || 'Source not listed')}</span>
+
+					<div class="student-card__record">
+						<span class="status-badge status-badge--${status}">
+							${statusLabels[status] || 'Unknown'}
+						</span>
+						<span class="student-card__source">
+							${escapeHTML(student.source || 'Source not listed')}
+						</span>
 					</div>
-					<span class="expand-indicator" aria-hidden="true"></span>
+
+					<div class="student-card__program">
+						${escapeHTML(student.program || '—')}
+					</div>
+
+					<div class="student-card__submissions">
+						<span>Release submitted: ${formatDate(jotform.releaseDate)}</span>
+						<span>Enrollment: ${formatDate(jotform.enrollmentDate)}</span>
+						${
+							jotform.cancellationDate
+								? `<span class="${cancellationDiscrepancy ? 'student-card__cancellation' : ''}">
+									Cancellation submitted: ${formatDate(jotform.cancellationDate)}
+								</span>`
+								: ''
+						}
+					</div>
+
+					<div class="student-card__membership">
+						<strong>
+							${
+								martialytics
+									? `Membership: ${escapeHTML(membershipLabel)}`
+									: 'No Martialytics record'
+							}
+						</strong>
+						<span>
+							Last attendance: ${formatDate(martialytics?.lastAttendance)}
+						</span>
+					</div>
+
+					<span class="student-card__toggle" aria-hidden="true">
+						<span class="student-card__show">Show</span>
+						<span class="student-card__hide">Hide</span>
+						<span class="expand-indicator"></span>
+					</span>
 				</summary>
-				${reviewNeeded ? `<p class="review-alert"><span aria-hidden="true">⚠</span> ${escapeHTML(reviewMessage)}</p>` : ''}
+
+				${
+					reviewNeeded
+						? `<p class="review-alert">
+							<span aria-hidden="true">⚠</span>
+							${escapeHTML(reviewMessage)}
+						</p>`
+						: ''
+				}
+
 				<div class="student-card__details">
 					<section class="detail-section" aria-label="Personal and contact details">
-						<h3>Personal &amp; contact</h3>
+						<h3>Personal / contact</h3>
 						<dl>
-							<div><dt>Date of birth</dt><dd>${formatDate(personal.dateOfBirth)}</dd></div>
-							<div><dt>Student email</dt><dd>${escapeHTML(personal.studentEmail || '—')}</dd></div>
-							<div><dt>Student phone</dt><dd>${escapeHTML(personal.studentPhone || '—')}</dd></div>
-							<div><dt>Guardian</dt><dd>${escapeHTML(guardian?.name || '—')}</dd></div>
+							<div>
+								<dt>Date of birth</dt>
+								<dd>${formatDate(personal.dateOfBirth)}</dd>
+							</div>
+							<div>
+								<dt>Student email</dt>
+								<dd>${escapeHTML(personal.studentEmail || '—')}</dd>
+							</div>
+							<div>
+								<dt>Student phone</dt>
+								<dd>${escapeHTML(personal.studentPhone || '—')}</dd>
+							</div>
+							<div>
+								<dt>Guardian</dt>
+								<dd>${escapeHTML(guardian?.name || '—')}</dd>
+							</div>
 							${
 								family
 									? `
-										<div><dt>${familyLabel} email</dt><dd>${escapeHTML(family.email || '—')}</dd></div>
-										<div><dt>${familyLabel} phone</dt><dd>${escapeHTML(family.phone || '—')}</dd></div>
+										<div>
+											<dt>${familyLabel} email</dt>
+											<dd>${escapeHTML(family.email || '—')}</dd>
+										</div>
+										<div>
+											<dt>${familyLabel} phone</dt>
+											<dd>${escapeHTML(family.phone || '—')}</dd>
+										</div>
 									`
 									: ''
 							}
 						</dl>
 					</section>
+
 					<section class="detail-section" aria-label="Jotform submission details">
 						<h3>Jotform submissions</h3>
 						<dl>
-							<div><dt>Release date</dt><dd>${formatDate(jotform.releaseDate)}</dd></div>
-							<div><dt>Enrollment date</dt><dd>${formatDate(jotform.enrollmentDate)}</dd></div>
-							<div><dt>Cancellation date</dt><dd>${formatDate(jotform.cancellationDate)}</dd></div>
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Release date</span>
+									<span class="detail-label--mobile">Jotform release</span>
+								</dt>
+								<dd>${formatDate(jotform.releaseDate)}</dd>
+							</div>
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Enrollment date</span>
+									<span class="detail-label--mobile">Jotform enrollment</span>
+								</dt>
+								<dd>${formatDate(jotform.enrollmentDate)}</dd>
+							</div>
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Cancellation date</span>
+									<span class="detail-label--mobile">Jotform cancellation</span>
+								</dt>
+								<dd>${formatDate(jotform.cancellationDate)}</dd>
+							</div>
 						</dl>
-						${student.detailNote ? `<p class="detail-note">${escapeHTML(student.detailNote)}</p>` : ''}
+						${
+							student.detailNote
+								? `<p class="detail-note">${escapeHTML(student.detailNote)}</p>`
+								: ''
+						}
 					</section>
+
 					<section class="detail-section" aria-label="Martialytics membership details">
 						<h3>Martialytics</h3>
-						<dl>
-							<div><dt>Membership</dt><dd>${escapeHTML(martialytics ? martialytics.membershipStatus || 'Unknown' : 'No record')}</dd></div>
-							<div><dt>Start date</dt><dd>${formatDate(martialytics?.startDate)}</dd></div>
-							<div><dt>Program</dt><dd>${escapeHTML(martialytics?.program || '—')}</dd></div>
-							<div><dt>Last attendance</dt><dd>${formatDate(martialytics?.lastAttendance)}</dd></div>
+
+						${
+							!martialytics
+								? '<p class="student-card__no-record">No Martialytics record</p>'
+								: ''
+						}
+
+						<dl class="${martialytics ? '' : 'student-card__missing-membership'}">
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Membership status</span>
+									<span class="detail-label--mobile">Martialytics membership status</span>
+								</dt>
+								<dd>${escapeHTML(membershipLabel)}</dd>
+							</div>
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Start date</span>
+									<span class="detail-label--mobile">Martialytics start date</span>
+								</dt>
+								<dd>${formatDate(martialytics?.startDate)}</dd>
+							</div>
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Program</span>
+									<span class="detail-label--mobile">Martialytics program</span>
+								</dt>
+								<dd>${escapeHTML(martialytics?.program || '—')}</dd>
+							</div>
+							<div>
+								<dt>
+									<span class="detail-label--desktop">Last attendance</span>
+									<span class="detail-label--mobile">Martialytics last attendance</span>
+								</dt>
+								<dd>${formatDate(martialytics?.lastAttendance)}</dd>
+							</div>
 						</dl>
+
+						${followUpAction}
 					</section>
-					
-					${followUpAction}
 				</div>
 			</details>
 		</article>
