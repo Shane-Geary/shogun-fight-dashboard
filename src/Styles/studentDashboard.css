@@ -1461,3 +1461,107 @@ h1 {
 		grid-template-columns: minmax(0, 1fr) auto auto;
 	}
 }
+
+/* T-10: PDF export and responsibility notice */
+
+.audit-actions {
+	gap: 12px;
+}
+
+#exportAuditButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 0 18px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--surface);
+	color: var(--ink);
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+#exportAuditButton svg {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+#exportAuditButton:hover {
+	background: #f8f9fa;
+}
+
+#exportAuditButton:disabled {
+	opacity: 0.65;
+	cursor: wait;
+}
+
+#exportAuditButton:focus-visible,
+#dismissExportNotice:focus-visible,
+#exportDownloadLink:focus-visible {
+	outline: 2px solid var(--blue);
+	outline-offset: 3px;
+}
+
+.export-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	margin-top: 24px;
+	padding: 14px 16px;
+	border: 1px solid #cfe2f3;
+	border-radius: 7px;
+	background: #edf6fd;
+	color: #334155;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.export-notice[hidden],
+#exportDownloadLink[hidden] {
+	display: none;
+}
+
+.export-notice > div {
+	flex: 1;
+	min-width: 0;
+}
+
+.export-notice p {
+	margin: 0;
+}
+
+#exportDownloadLink {
+	display: inline-block;
+	margin-top: 8px;
+	color: #19618b;
+	font-weight: 700;
+}
+
+#dismissExportNotice {
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: inherit;
+	font-size: 24px;
+	cursor: pointer;
+}
+
+@media (max-width: 720px) {
+	.audit-actions {
+		flex-direction: column-reverse;
+		gap: 10px;
+	}
+
+	.audit-actions > button {
+		width: 100%;
+		justify-content: center;
+		min-height: 46px;
+	}
+}
