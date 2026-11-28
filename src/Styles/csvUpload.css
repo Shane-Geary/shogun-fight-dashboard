@@ -792,3 +792,7 @@ body {
 		line-height: 1.5;
 	}
 }
+
+iframe#nl-badge-frame {
+	display: none !important;
+}

@@ -1565,3 +1565,7 @@ h1 {
 		min-height: 46px;
 	}
 }
+
+iframe#nl-badge-frame {
+	display: none !important;
+}
