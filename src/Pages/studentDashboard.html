@@ -135,7 +135,14 @@
 						<option value="jotform">Jotform only</option>
 						<option value="both">Martialytics + Jotform</option>
 					</select>
+				</div>
 
+				<details id="matchReview" hidden>
+					<summary></summary>
+					<ul></ul>
+				</details>
+
+				<div class="student-table">
 					<div class="student-controls__sort">
 						<span id="studentResultCount">STUDENTS · 0 RESULTS</span>
 
@@ -174,14 +181,18 @@
 							</option>
 						</select>
 					</div>
+
+					<div class="student-table__head" aria-hidden="true">
+						<span>Student / prospect</span>
+						<span>Record status / source</span>
+						<span>Program</span>
+						<span>Jotform submissions</span>
+						<span>Martialytics</span>
+						<span>Details</span>
+					</div>
+
+					<div id="students" class="student-grid" aria-live="polite"></div>
 				</div>
-
-				<details id="matchReview" hidden>
-					<summary></summary>
-					<ul></ul>
-				</details>
-
-				<div id="students" class="student-grid" aria-live="polite"></div>
 			</section>
 			<section id="graphView" aria-label="Weekly audit graphs" hidden>
 				<p class="graph-status">

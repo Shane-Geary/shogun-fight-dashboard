@@ -1156,3 +1156,308 @@ h1 {
 	outline: 2px solid var(--blue);
 	outline-offset: 3px;
 }
+
+/* Student results: desktop table and stacked mobile cards */
+
+.student-table {
+	--student-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.65fr)
+		minmax(0, 1.45fr) minmax(0, 1.65fr) 52px;
+
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface);
+}
+
+.student-table .student-controls__sort {
+	margin: 0;
+	border: 0;
+	border-bottom: 1px solid var(--line);
+	border-radius: 8px 8px 0 0;
+}
+
+.student-table__head,
+.student-table .student-card__summary {
+	display: grid;
+	grid-template-columns: var(--student-columns);
+	align-items: center;
+	gap: 20px;
+	padding: 22px;
+}
+
+.student-table__head {
+	padding-block: 16px;
+	border-bottom: 1px solid var(--line);
+	background: #f8f9fa;
+	color: #596575;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.student-table__head > :last-child {
+	text-align: right;
+}
+
+.student-table .student-grid {
+	display: block;
+}
+
+.student-table .student-card {
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.student-table .student-card + .student-card {
+	border-top: 1px solid var(--line);
+}
+
+.student-table .student-card:last-child {
+	border-radius: 0 0 8px 8px;
+}
+
+.student-table .student-card__summary {
+	min-height: 96px;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.student-card__summary > *,
+.student-table .detail-section {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.student-table .student-card__identity,
+.student-card__record,
+.student-card__submissions,
+.student-card__membership {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.student-table .student-card__identity h2 {
+	font-size: 15px;
+	line-height: 1.4;
+}
+
+.student-card__subtitle,
+.student-card__source,
+.student-card__submissions,
+.student-card__membership > span {
+	color: #697586;
+	font-size: 12px;
+}
+
+.student-card__submissions > :first-child {
+	color: var(--ink);
+}
+
+.student-card__submissions .student-card__cancellation {
+	color: #9a520c;
+	font-weight: 700;
+}
+
+.student-card__membership > strong {
+	font-weight: 600;
+}
+
+.student-card__toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	color: var(--blue);
+	font-size: 12px;
+}
+
+.student-card__hide,
+.student-card details[open] .student-card__show {
+	display: none;
+}
+
+.student-card details[open] .student-card__hide {
+	display: inline;
+}
+
+.student-table .expand-indicator {
+	position: static;
+	flex: 0 0 6px;
+	width: 6px;
+	height: 6px;
+	transform: translateY(-2px) rotate(45deg);
+}
+
+.student-table details[open] .expand-indicator {
+	transform: translateY(2px) rotate(225deg);
+}
+
+.student-table .student-card__details {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+	padding: 24px 22px;
+}
+
+.student-table .detail-section h3 {
+	color: #596575;
+	letter-spacing: 0;
+	font-size: 11px;
+}
+
+.student-table .detail-section dl > div {
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.9fr);
+	gap: 12px;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.student-table .detail-section dt {
+	color: #697586;
+}
+
+.detail-label--mobile {
+	display: none;
+}
+
+.student-table .follow-up-section {
+	margin-top: 18px;
+}
+
+.student-card__no-record {
+	margin: 0 0 12px;
+	color: #697586;
+	font-size: 12px;
+}
+
+.student-table .student-card__missing-membership {
+	display: none;
+}
+
+.student-table .review-alert {
+	padding-inline: 22px;
+}
+
+/* Stack cards before the desktop columns become cramped. */
+@media (max-width: 900px) {
+	.student-table {
+		border: 0;
+		background: transparent;
+	}
+
+	.student-table__head {
+		display: none;
+	}
+
+	.student-table .student-controls__sort {
+		margin-bottom: 12px;
+		border: 1px solid var(--line);
+		border-radius: 7px;
+	}
+
+	.student-table .student-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 12px;
+	}
+
+	.student-table .student-card,
+	.student-table .student-card:last-child {
+		border: 1px solid var(--line);
+		border-radius: 8px;
+	}
+
+	.student-table .student-card__summary {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			'identity toggle'
+			'record record'
+			'program membership';
+		gap: 8px 12px;
+		min-height: 0;
+		padding: 14px;
+	}
+
+	.student-card__identity {
+		grid-area: identity;
+	}
+
+	.student-card__record {
+		grid-area: record;
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.student-card__program {
+		grid-area: program;
+	}
+
+	.student-card__membership {
+		grid-area: membership;
+		align-items: flex-end;
+		text-align: right;
+	}
+
+	.student-card__toggle {
+		grid-area: toggle;
+	}
+
+	.student-card__program,
+	.student-card__membership > span {
+		color: #697586;
+		font-size: 11px;
+	}
+
+	.student-card__subtitle,
+	.student-card__identity .review-indicator,
+	.student-card__submissions,
+	.student-card__membership > strong {
+		display: none;
+	}
+
+	.student-table .student-card__details {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 18px;
+		padding: 14px;
+		background: var(--surface);
+	}
+
+	.student-table .detail-section > h3,
+	.detail-label--desktop {
+		display: none;
+	}
+
+	.detail-label--mobile {
+		display: inline;
+	}
+
+	.student-table .detail-section dl > div {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 3px;
+	}
+
+	.student-table .detail-section dl {
+		gap: 12px;
+	}
+
+	.student-table .student-card__missing-membership {
+		display: grid;
+	}
+
+	.student-table .follow-up-section > h3 {
+		display: block;
+	}
+
+	.student-table .review-alert {
+		padding-inline: 14px;
+	}
+}
+
+@media (max-width: 720px) {
+	.student-table .student-controls__sort {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto auto;
+	}
+}
